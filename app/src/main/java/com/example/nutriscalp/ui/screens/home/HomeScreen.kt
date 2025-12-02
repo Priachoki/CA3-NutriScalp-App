@@ -1,20 +1,21 @@
 package com.example.nutriscalp.ui.screens.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.ProvidableModifierLocal
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.nutriscalp.R
+import com.example.nutriscalp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,82 +23,101 @@ fun HomeScreen() {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("NutriScalp Dashboard") }
+                title = { NutriScalpImageLogo() },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = SoftCream,
+                    titleContentColor = TextDark
+                )
             )
         }
-    ) { innerPadding ->
+    ) { padding ->
 
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
+                .background(SoftCream)
+                .padding(padding)
+                .padding(20.dp)
+                .fillMaxSize()
         ) {
 
-            // SIMPLE SCALP SCORE CARD
+            // ===== SCORE CARD =====
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 20.dp),
-                shape = androidx.compose.material3.MaterialTheme.shapes.medium,
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = PureWhite),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Today's Scalp Score", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Dryness: 30%")
-                    Text("Oiliness: 60%")
-                    Text("Inflammation: Low")
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(
+                        "Today's Scalp Score",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Gold
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text("Dryness: 30%", fontSize = 16.sp, color = TextDark)
+                    Text("Oiliness: 60%", fontSize = 16.sp, color = TextDark)
+                    Text("Inflammation: Low", fontSize = 16.sp, color = TextDark)
                 }
             }
 
             Text(
                 text = "Quick Access",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextDark
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                QuickButton("Foods")
-                QuickButton("Diet Log")
+            // FIRST ROW
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                QuickButton(title = "Foods")
+                QuickButton(title = "Diet Log")
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                QuickButton("Tips")
-                QuickButton("History")
+            // SECOND ROW
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                QuickButton(title = "Tips")
+                QuickButton(title = "History")
             }
         }
     }
 }
 
 @Composable
+fun NutriScalpImageLogo() {
+    Image(
+        painter = painterResource(id = R.drawable.nutriscalp_logo),
+        contentDescription = null,
+        modifier = Modifier
+            .height(90.dp)
+            .padding(top = 6.dp)
+    )
+}
+
+@Composable
 fun QuickButton(title: String) {
     Card(
         modifier = Modifier
-            .size(width = 150.dp, height = 80.dp)
-            .clickable { },
-        shape = androidx.compose.material3.MaterialTheme.shapes.medium,
+            .size(width = 150.dp, height = 100.dp)
+            .clickable {},
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = PureWhite),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            contentAlignment = Alignment.Center) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
             Text(
-                title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                text = title,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = TextDark
             )
         }
     }
 }
-
-
