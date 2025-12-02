@@ -1,16 +1,12 @@
-package com.example.nutriscalp
+package com.example.nutriscalp   // FIXED PACKAGE NAME
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.nutriscalp.ui.screens.home.HomeScreen
 import com.example.nutriscalp.ui.theme.NutriScalpTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +15,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NutriScalpTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                HomeScreen()
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun HomePreview() {
     NutriScalpTheme {
-        Greeting("Android")
+        HomeScreen()
     }
 }
