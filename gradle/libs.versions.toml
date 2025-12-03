@@ -1,6 +1,6 @@
 [versions]
 agp = "8.2.0"
-kotlin = "1.9.10"
+kotlin = "1.9.20" # CHANGED: Updated from 1.9.10 to 1.9.20 for consistency
 navigationComposeJvmstubs = "2.9.6"
 
 [libraries]
@@ -27,4 +27,3 @@ androidx-navigation-compose-jvmstubs = { group = "androidx.navigation", name = "
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-# REMOVE THIS LINE: kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
