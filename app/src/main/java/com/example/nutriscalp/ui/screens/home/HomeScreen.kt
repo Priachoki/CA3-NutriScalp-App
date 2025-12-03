@@ -19,7 +19,12 @@ import com.example.nutriscalp.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToFoods: () -> Unit = {},
+    onNavigateToDietLog: () -> Unit = {},
+    onNavigateToTips: () -> Unit = {},
+    onNavigateToHistory: () -> Unit = {}
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -75,16 +80,28 @@ fun HomeScreen() {
 
             // FIRST ROW
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                QuickButton(title = "Foods")
-                QuickButton(title = "Diet Log")
+                QuickButton(
+                    title = "Foods",
+                    onClick = onNavigateToFoods  // Add this
+                )
+                QuickButton(
+                    title = "Diet Log",
+                    onClick = onNavigateToDietLog  // Add this
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             // SECOND ROW
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                QuickButton(title = "Tips")
-                QuickButton(title = "History")
+                QuickButton(
+                    title = "Tips",
+                    onClick = onNavigateToTips  // Add this
+                )
+                QuickButton(
+                    title = "History",
+                    onClick = onNavigateToHistory  // Add this
+                )
             }
         }
     }
@@ -102,11 +119,14 @@ fun NutriScalpImageLogo() {
 }
 
 @Composable
-fun QuickButton(title: String) {
+fun QuickButton(
+    title: String,
+    onClick: () -> Unit = {}  // Add this parameter
+) {
     Card(
         modifier = Modifier
             .size(width = 150.dp, height = 100.dp)
-            .clickable {},
+            .clickable { onClick() },  // Use onClick here
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = PureWhite),
         elevation = CardDefaults.cardElevation(4.dp)
