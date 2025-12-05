@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-// Data class to hold the UI state for the Home Screen
+// Data class to hold the static UI state
 data class ScalpScore(
     val dryness: String = "30%",
     val oiliness: String = "60%",
@@ -24,36 +24,31 @@ class AppViewModel(
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
-    // Architecture Components: State Flow for Scalp Score
+    // Architecture Components: State Flow (Static default)
     private val _scalpScore = MutableStateFlow(ScalpScore())
     val scalpScore: StateFlow<ScalpScore> = _scalpScore.asStateFlow()
 
-    // State Flow for Foods List (Retrofit/Coil)
     private val _foods = MutableStateFlow<List<Food>>(emptyList())
     val foods: StateFlow<List<Food>> = _foods.asStateFlow()
 
-    // State Flow for Dark Mode Preference (DataStore)
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
 
     init {
-        // Logging: Initial log message
         Log.d("NutriScalpApp", "AppViewModel initialized. Fetching initial data.")
         fetchFoods()
         loadPreferences()
     }
 
-    // Getting Data from Internet using Retrofit
+    // Getting Data from Internet (mocked)
     private fun fetchFoods() {
         viewModelScope.launch {
             try {
-                // Mock API call
+                // Retrofit mock call
                 val fetchedFoods = foodService.getFoods()
                 _foods.value = fetchedFoods
             } catch (e: Exception) {
-                // Logging: Log error on network failure
                 Log.e("NutriScalpApp", "Error fetching foods: ${e.message}")
-                // In a real app, handle the error gracefully for the user
                 _foods.value = emptyList()
             }
         }
@@ -66,6 +61,7 @@ class AppViewModel(
         }
     }
 
+    // Use DataStore
     fun toggleDarkMode(enable: Boolean) {
         viewModelScope.launch {
             dataStoreManager.setDarkMode(enable)
@@ -73,9 +69,12 @@ class AppViewModel(
         }
     }
 
-    // Custom ViewModel Factory (Needed for passing dependencies)
+    // Custom ViewModel Factory
     companion object {
-        fun factory(foodService: FoodService, dataStoreManager: DataStoreManager) = object : androidx.lifecycle.ViewModelProvider.Factory {
+        fun factory(
+            foodService: FoodService,
+            dataStoreManager: DataStoreManager
+        ) = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(AppViewModel::class.java)) {
                     @Suppress("UNCHECKED_CAST")

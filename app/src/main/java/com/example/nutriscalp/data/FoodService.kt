@@ -12,10 +12,9 @@ interface MockFoodApi {
     suspend fun fetchFoods(): List<Food>
 }
 
-// --- Mocked Implementation of the Retrofit Service ---
+// --- Mocked Implementation of the Retrofit Service (Getting Data from Internet) ---
 class FoodService private constructor() {
 
-    // Mocked Retrofit instance (in a real app, you'd use a real base URL)
     private val mockApi = object : MockFoodApi {
         override suspend fun fetchFoods(): List<Food> {
             // Simulate network delay
@@ -24,7 +23,7 @@ class FoodService private constructor() {
         }
     }
 
-    // Mock Data (Replace with a real API implementation)
+    // Mock Data
     private val mockFoodList = listOf(
         Food(1, "Spinach", "https://i.imgur.com/example_spinach.png", "Rich in iron and folate, essential for hair growth.", "Promotes hair follicle health and circulation."),
         Food(2, "Salmon", "https://i.imgur.com/example_salmon.png", "High in Omega-3 fatty acids.", "Reduces scalp inflammation and dryness."),
@@ -33,11 +32,9 @@ class FoodService private constructor() {
     )
 
     suspend fun getFoods(): List<Food> {
-        // Here we call the mock API
         return mockApi.fetchFoods()
     }
 
-    // Singleton instance (Dependency Injection mock)
     companion object {
         val instance by lazy { FoodService() }
     }

@@ -3,31 +3,47 @@ package com.example.nutriscalp.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.MonitorWeight
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.nutriscalp.ui.theme.LeafGreen
-import com.example.nutriscalp.ui.theme.SoftCream
+// 🚨 UPDATED IMPORTS
+import com.example.nutriscalp.ui.theme.AccentTerra
+import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.ui.theme.TextDark
+import kotlinx.coroutines.delay
+
+// Data structure for tips (Mock data)
+data class ScalpTip(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val delayMs: Long // For staggered animation
+)
+
+private val mockTips = listOf(
+    ScalpTip("Hydration is Key", "Drink at least 8 glasses of water daily to maintain skin and scalp moisture.", Icons.Default.Spa, 200),
+    ScalpTip("Monitor Sugar Intake", "High glycemic diets can increase oil production. Opt for complex carbs.", Icons.Default.MonitorWeight, 400),
+    ScalpTip("Gentle Washing", "Avoid hot water and harsh sulfates; they strip natural oils, leading to irritation.", Icons.Default.LocalHospital, 600)
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TipsScreen(onBack: () -> Unit) {
-    // Animation: controls visibility and animation state
-    var visible by remember { mutableStateOf(false) }
-
-    // Trigger the animation on composition
-    LaunchedEffect(Unit) {
-        visible = true
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -38,54 +54,96 @@ fun TipsScreen(onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = LeafGreen,
-                    titleContentColor = SoftCream,
-                    navigationIconContentColor = SoftCream
+                    containerColor = AccentTerra, // 🎨 Changed from LeafGreen
+                    titleContentColor = PureCream, // 🎨 Changed from SoftCream
+                    navigationIconContentColor = PureCream // 🎨 Changed from SoftCream
                 )
             )
         }
     ) { padding ->
-        Box(
+        LazyColumn(
             modifier = Modifier
-                .background(SoftCream)
+                .background(PureCream) // 🎨 Changed from SoftCream
                 .padding(padding)
                 .fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Animation: Slide-in and Fade-in effect for the Tip Card
-            AnimatedVisibility(
-                visible = visible,
-                enter = slideInVertically(
-                    initialOffsetY = { fullHeight -> fullHeight },
-                    animationSpec = tween(durationMillis = 600)
-                ) + fadeIn(animationSpec = tween(durationMillis = 600)),
+            item {
+                Text(
+                    "Discover the best practices for a healthier scalp.",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextDark,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+
+            // Scrollable List of Animated Tips (Animation requirement)
+            itemsIndexed(mockTips) { index, tip ->
+                AnimatedTipCard(tip = tip)
+            }
+        }
+    }
+}
+
+@Composable
+fun AnimatedTipCard(tip: ScalpTip) {
+    var visible by remember { mutableStateOf(false) }
+
+    // Staggered Animation Effect (Adheres to Animation Requirement)
+    LaunchedEffect(key1 = tip.title) {
+        delay(tip.delayMs)
+        visible = true
+    }
+
+    // AnimatedVisibility for the simple fade-in effect
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(animationSpec = tween(durationMillis = 500)),
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(2.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .padding(16.dp),
-                    elevation = CardDefaults.cardElevation(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "💡 Daily Tip 💡",
-                            fontSize = 20.sp,
-                            color = LeafGreen,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Divider()
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Remember to gently massage your scalp for 5 minutes daily to boost blood circulation and promote nutrient delivery to hair follicles.",
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                    }
+                // Icon on the left (clean design)
+                Icon(
+                    imageVector = tip.icon,
+                    contentDescription = tip.title,
+                    tint = AccentTerra, // 🎨 Changed from LeafGreen
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(Modifier.width(16.dp))
+
+                // Title and Subtitle in the center
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        tip.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextDark,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        tip.subtitle,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+
+                // Navigation Arrow
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    contentDescription = "Details",
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(16.dp)
+                )
             }
         }
     }

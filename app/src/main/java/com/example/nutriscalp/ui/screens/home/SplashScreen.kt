@@ -16,7 +16,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.R
-import com.example.nutriscalp.ui.theme.SoftCream
+// 🚨 UPDATED IMPORT
+import com.example.nutriscalp.ui.theme.PureCream
 import kotlinx.coroutines.delay
 
 @Composable
@@ -26,7 +27,7 @@ fun SplashScreen(onNavigateToHome: () -> Unit) {
         Animatable(0f)
     }
 
-    // LaunchedEffect: Runs the animation and navigation logic once on entry.
+    // Animation and Navigation logic
     LaunchedEffect(key1 = true) {
         // Animation: Fade in the logo over 1.5 seconds
         alpha.animateTo(1f, animationSpec = tween(1500))
@@ -34,13 +35,13 @@ fun SplashScreen(onNavigateToHome: () -> Unit) {
         // Wait for an additional 1.5 seconds after the animation finishes
         delay(1500L)
 
-        // Navigation: Navigate to the home screen
+        // Navigation: Navigate to the login screen
         onNavigateToHome()
     }
 
     Box(
         modifier = Modifier
-            .background(SoftCream)
+            .background(PureCream) // 🎨 Changed from SoftCream
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {

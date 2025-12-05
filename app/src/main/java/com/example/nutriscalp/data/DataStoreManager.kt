@@ -1,17 +1,27 @@
 package com.example.nutriscalp.data
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 // Creates an instance of DataStore
-val Context.dataStore by preferencesDataStore(name = "settings")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class DataStoreManager(context: Context) {
-    private val dataStore = context.dataStore
+class DataStoreManager(context: Context?) {
+    // FIX: Explicitly implement the DataStore interface for the mock object in Preview
+    private val dataStore: DataStore<Preferences> = context?.dataStore ?: object : DataStore<Preferences> {
+        override val data: Flow<Preferences> = flowOf(emptyPreferences())
+        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+            return transform(emptyPreferences())
+        }
+    }
 
     // Key for storing the dark mode preference
     private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")

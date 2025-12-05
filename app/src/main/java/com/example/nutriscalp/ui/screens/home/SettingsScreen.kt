@@ -1,19 +1,28 @@
 package com.example.nutriscalp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.nutriscalp.AppViewModel
-import com.example.nutriscalp.ui.theme.LeafGreen
-import com.example.nutriscalp.ui.theme.SoftCream
+// 🚨 UPDATED IMPORTS
+import com.example.nutriscalp.ui.theme.AccentTerra
+import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.ui.theme.TextDark
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,55 +33,137 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings (DataStore Demo)") },
+                title = { Text("Settings") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = LeafGreen,
-                    titleContentColor = SoftCream,
-                    navigationIconContentColor = SoftCream
+                    containerColor = AccentTerra, // 🎨 Changed from LeafGreen
+                    titleContentColor = PureCream, // 🎨 Changed from SoftCream
+                    navigationIconContentColor = PureCream // 🎨 Changed from SoftCream
                 )
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .background(SoftCream)
+                .background(PureCream) // 🎨 Changed from SoftCream
                 .padding(padding)
-                .padding(20.dp)
-                .fillMaxSize()
+                .fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Enable Dark Mode (Persistent Setting)",
-                        fontSize = 16.sp
-                    )
-                    // Use DataStore: Toggle the preference
-                    Switch(
-                        checked = isDarkModeEnabled,
-                        onCheckedChange = { appViewModel.toggleDarkMode(it) },
-                        colors = SwitchDefaults.colors(checkedTrackColor = LeafGreen)
-                    )
-                }
+            item {
+                Text(
+                    "Display & Theme",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextDark,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+                )
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "This setting is saved using Android DataStore and will persist even if you close and reopen the app.",
-                style = MaterialTheme.typography.bodySmall
+
+            // 1. Dark Mode Toggle (DataStore Implementation)
+            item {
+                SettingsToggleItem(
+                    icon = Icons.Default.DarkMode,
+                    title = "Dark Mode",
+                    subtitle = "Saves preference using DataStore",
+                    isChecked = isDarkModeEnabled,
+                    onCheckedChange = appViewModel::toggleDarkMode
+                )
+            }
+
+            item {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "Data Management",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextDark,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+                )
+            }
+
+            // 2. Sync Button (Demonstration of second interaction)
+            item {
+                SettingsClickableItem(
+                    icon = Icons.Default.Sync,
+                    title = "Sync Data Now",
+                    subtitle = "Trigger mock API refresh",
+                    onClick = { /* In a real app: Trigger fetchFoods */ }
+                )
+            }
+        }
+    }
+}
+
+// Reusable composable for a clean settings item with a toggle
+@Composable
+fun SettingsToggleItem(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    isChecked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(imageVector = icon, contentDescription = title, tint = AccentTerra) // 🎨 Changed from LeafGreen
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium, color = TextDark)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall)
+            }
+            Switch(
+                checked = isChecked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(checkedTrackColor = AccentTerra) // 🎨 Changed from LeafGreen
             )
+        }
+    }
+}
+
+// Reusable composable for a clean settings item with a click action
+@Composable
+fun SettingsClickableItem(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Icon(imageVector = icon, contentDescription = title, tint = AccentTerra) // 🎨 Changed from LeafGreen
+            Spacer(Modifier.width(16.dp))
+            Column {
+                Text(title, style = MaterialTheme.typography.titleMedium, color = TextDark)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

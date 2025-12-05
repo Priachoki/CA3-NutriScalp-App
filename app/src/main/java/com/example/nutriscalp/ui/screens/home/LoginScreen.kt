@@ -13,45 +13,57 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.R
-import com.example.nutriscalp.ui.theme.LeafGreen
+// 🚨 UPDATED IMPORTS
+import com.example.nutriscalp.ui.theme.AccentTerra
 import com.example.nutriscalp.ui.theme.NutriScalpTheme
-import com.example.nutriscalp.ui.theme.SoftCream
+import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.ui.theme.TextDark
 
+// Simplified Login Screen (Professional, Minimalist design)
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
-    // Simple state for input fields (no actual validation needed for this step)
-    var username by remember { mutableStateOf("user@example.com") }
-    var password by remember { mutableStateOf("password") }
+    var username by remember { mutableStateOf("user@nutriscalp.com") }
+    var password by remember { mutableStateOf("******") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(SoftCream)
-            .padding(24.dp),
+            .background(PureCream) // 🎨 Changed from SoftCream
+            .padding(horizontal = 32.dp, vertical = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
 
         // Logo
         Image(
             painter = painterResource(id = R.drawable.nutriscalp_logo),
             contentDescription = "NutriScalp Logo",
-            modifier = Modifier.size(150.dp).padding(bottom = 32.dp)
+            modifier = Modifier.size(120.dp).padding(bottom = 16.dp)
         )
 
-        Text("Login to NutriScalp", style = MaterialTheme.typography.headlineMedium)
-        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            "Welcome Back",
+            style = MaterialTheme.typography.headlineMedium,
+            color = TextDark
+        )
+        Text(
+            "Log in to find your perfect scalp solution.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.outline
+        )
 
-        // Username Field
+        Spacer(modifier = Modifier.height(48.dp))
+
+        // Username Field (Simplistic Outlined style)
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
-            label = { Text("Username") },
+            label = { Text("Email Address") },
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = LeafGreen,
-                focusedLabelColor = LeafGreen,
+                focusedBorderColor = AccentTerra, // 🎨 Changed from LeafGreen
+                focusedLabelColor = AccentTerra, // 🎨 Changed from LeafGreen
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -65,19 +77,20 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = LeafGreen,
-                focusedLabelColor = LeafGreen,
+                focusedBorderColor = AccentTerra, // 🎨 Changed from LeafGreen
+                focusedLabelColor = AccentTerra, // 🎨 Changed from LeafGreen
             )
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
-        // Login Button (Triggers navigation)
+        // Login Button (Primary Action)
         Button(
-            onClick = onLoginSuccess, // Navigates to Home Screen
-            modifier = Modifier.fillMaxWidth(0.6f).height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = LeafGreen)
+            onClick = onLoginSuccess,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = AccentTerra) // 🎨 Changed from LeafGreen
         ) {
-            Text("LOGIN", style = MaterialTheme.typography.titleMedium)
+            Text("LOGIN", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }
