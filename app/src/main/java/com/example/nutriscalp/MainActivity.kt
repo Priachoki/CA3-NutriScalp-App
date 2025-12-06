@@ -15,7 +15,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.nutriscalp.data.DataStoreManager
 import com.example.nutriscalp.data.FoodService
-import com.example.nutriscalp.ui.screens.DietLogScreen // <-- NEW IMPORT
+import com.example.nutriscalp.data.MealRepository
+import com.example.nutriscalp.room.AppDatabase
+import com.example.nutriscalp.ui.screens.DietLogScreen
 import com.example.nutriscalp.ui.screens.FoodsScreen
 import com.example.nutriscalp.ui.screens.SettingsScreen
 import com.example.nutriscalp.ui.screens.TipsScreen
@@ -37,8 +39,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             // Architecture Components: ViewModel instantiation
+
+            val database = AppDatabase.getDatabase(applicationContext)
+
+            val mealRepository = MealRepository(database.mealDao())
+
             val appViewModel: AppViewModel = viewModel(
-                factory = AppViewModel.factory(FoodService.instance, dataStoreManager)
+                factory = AppViewModel.factory(
+                    foodService = FoodService.instance,
+                    dataStoreManager = dataStoreManager,
+                    mealRepository = mealRepository
+                )
             )
 
             NutriScalpApp(appViewModel)

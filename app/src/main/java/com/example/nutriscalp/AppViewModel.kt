@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.nutriscalp.data.DataStoreManager
 import com.example.nutriscalp.data.Food
 import com.example.nutriscalp.data.FoodService
+import com.example.nutriscalp.data.MealRepository
+import com.example.nutriscalp.room.MealEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +23,8 @@ data class ScalpScore(
 
 class AppViewModel(
     private val foodService: FoodService,
-    private val dataStoreManager: DataStoreManager
+    private val dataStoreManager: DataStoreManager,
+    private val mealRepository: MealRepository
 ) : ViewModel() {
 
     // Architecture Components: State Flow (Static default)
@@ -34,10 +37,15 @@ class AppViewModel(
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
 
+    private val _meals = MutableStateFlow<List<MealEntity>>(emptyList())
+    val meals: StateFlow<List<MealEntity>> = _meals.asStateFlow()
+
+
     init {
         Log.d("NutriScalpApp", "AppViewModel initialized. Fetching initial data.")
         fetchFoods()
         loadPreferences()
+        loadMeals()
     }
 
     // Getting Data from Internet (mocked)
@@ -61,6 +69,25 @@ class AppViewModel(
         }
     }
 
+    private fun loadMeals() {
+        viewModelScope.launch {
+            mealRepository.getAllMeals().collect { list ->
+                _meals.value = list
+            }
+        }
+    }
+
+    fun saveMeal(mealName: String, calories: Int, notes: String) {
+        viewModelScope.launch {
+            val meal = MealEntity(
+                mealName = mealName,
+                calories = calories,
+                notes = notes
+            )
+            mealRepository.insertMeal(meal)
+        }
+    }
+
     // Use DataStore
     fun toggleDarkMode(enable: Boolean) {
         viewModelScope.launch {
@@ -73,15 +100,21 @@ class AppViewModel(
     companion object {
         fun factory(
             foodService: FoodService,
-            dataStoreManager: DataStoreManager
+            dataStoreManager: DataStoreManager,
+            mealRepository: MealRepository
         ) = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(AppViewModel::class.java)) {
                     @Suppress("UNCHECKED_CAST")
-                    return AppViewModel(foodService, dataStoreManager) as T
+                    return AppViewModel(
+                        foodService,
+                        dataStoreManager,
+                        mealRepository
+                    ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")
             }
         }
     }
+
 }

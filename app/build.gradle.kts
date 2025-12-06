@@ -2,14 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // Removed KSP plugin application: alias(libs.plugins.ksp) and id("com.google.devtools.ksp")
+    alias(libs.plugins.ksp)   // REQUIRED for Room
 }
 
 android {
     namespace = "com.example.nutriscalp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.nutriscalp"
@@ -30,13 +28,16 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
@@ -46,35 +47,51 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Compose BOM
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.foundation) // Base UI components
+    implementation(libs.androidx.compose.foundation)
 
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.material3)
 
-    // ARCHITECTURE AND UTILITY DEPENDENCIES
-    implementation(libs.androidx.lifecycle.viewmodel.compose) // Architecture Components
-    implementation(libs.androidx.navigation.compose) // Navigation
-    implementation(libs.coil.compose) // Load and Display Images using Coil
-    implementation(libs.androidx.datastore.preferences) // Use DataStore
+    implementation("androidx.compose.material:material-icons-core:1.5.1")
+    implementation("androidx.compose.material:material-icons-extended:1.5.1")
 
-    // NETWORKING DEPENDENCIES
-    implementation(libs.retrofit.core) // Getting Data from Internet using Retrofit
-    implementation(libs.retrofit.converter.gson) // Getting Data from Internet using Retrofit
+    // Architecture
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
+
+    // Coil
+    implementation(libs.coil.compose)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // Retrofit
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.converter.gson)
 
     implementation(libs.androidx.compose.ui.icons.extended)
     implementation(libs.androidx.foundation)
 
-    // Removed all Room/KSP dependencies
+    //  ROOM — Correct dependencies
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    implementation(libs.androidx.room.common.jvm)
+    ksp(libs.room.compiler)   // <-- Works now because plugin is applied
+
+    //  NO ROOM COMMON, NO OTHER COMPILERS, NO DUPLICATES
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
