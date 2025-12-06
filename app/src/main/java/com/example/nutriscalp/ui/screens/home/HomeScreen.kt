@@ -28,11 +28,11 @@ import com.example.nutriscalp.AppDestinations
 import com.example.nutriscalp.AppViewModel
 import com.example.nutriscalp.R
 // 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentTerra
-import com.example.nutriscalp.ui.theme.PureCream
-import com.example.nutriscalp.ui.theme.RichBrown
+import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW
+import com.example.nutriscalp.ui.theme.AccentSecondary // 💡 NEW
+import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
 import com.example.nutriscalp.ui.theme.TextDark
-import com.example.nutriscalp.ui.theme.TextLight // Assumed TextLight is used for PureWhite elements
+import com.example.nutriscalp.ui.theme.TextLight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +44,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
             CenterAlignedTopAppBar(
                 title = { NutriScalpImageLogo() },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = PureCream, // 🎨 Changed from SoftCream
+                    containerColor = BackgroundLight, // 💡 Changed from PureCream
                     titleContentColor = TextDark
                 )
             )
@@ -53,7 +53,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
 
         Column(
             modifier = Modifier
-                .background(PureCream) // 🎨 Changed from SoftCream
+                .background(BackgroundLight) // 💡 Changed from PureCream
                 .padding(padding)
                 .padding(horizontal = 20.dp)
                 .fillMaxSize()
@@ -77,14 +77,14 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                             "Today's Scalp Score",
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = RichBrown, // 🎨 Changed from Gold
+                            color = AccentSecondary, // 💡 Changed from RichBrown
                             modifier = Modifier.weight(1f)
                         )
                         // Logo Icon in the Score Card
                         Icon(
                             painter = painterResource(id = R.drawable.nutriscalp_logo),
                             contentDescription = "Scalp Health Icon",
-                            tint = AccentTerra, // 🎨 Changed from LeafGreen
+                            tint = AccentPrimary, // 💡 Changed from AccentTerra
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -166,7 +166,7 @@ fun UserHeader(userName: String) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(RichBrown.copy(alpha = 0.5f)) // 🎨 Changed from Gold to RichBrown
+                .background(AccentSecondary.copy(alpha = 0.5f)) // 💡 Changed from RichBrown
                 .clickable { /* TBD: Go to profile */ },
             contentAlignment = Alignment.Center
         ) {
@@ -207,7 +207,7 @@ fun QuickButton(title: String, icon: ImageVector, onClick: () -> Unit) {
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = AccentTerra, // 🎨 Changed from LeafGreen
+                tint = AccentPrimary, // 💡 Changed from AccentTerra
                 modifier = Modifier.size(24.dp)
             )
             Text(

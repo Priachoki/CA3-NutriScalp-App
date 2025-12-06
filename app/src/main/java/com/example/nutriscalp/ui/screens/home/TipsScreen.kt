@@ -3,6 +3,7 @@ package com.example.nutriscalp.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.Image // 💡 REQUIRED for local images
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,19 +12,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material.icons.filled.MonitorWeight
-import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale // 💡 REQUIRED
+import androidx.compose.ui.res.painterResource // 💡 REQUIRED
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-// 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentTerra
-import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.R // 💡 REQUIRED for local resource IDs
+import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW COLOR
+import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW COLOR
 import com.example.nutriscalp.ui.theme.TextDark
 import kotlinx.coroutines.delay
 
@@ -31,14 +31,15 @@ import kotlinx.coroutines.delay
 data class ScalpTip(
     val title: String,
     val subtitle: String,
-    val icon: ImageVector,
+    val imageResId: Int, // 💡 CHANGED to Int for local resource ID
     val delayMs: Long // For staggered animation
 )
 
 private val mockTips = listOf(
-    ScalpTip("Hydration is Key", "Drink at least 8 glasses of water daily to maintain skin and scalp moisture.", Icons.Default.Spa, 200),
-    ScalpTip("Monitor Sugar Intake", "High glycemic diets can increase oil production. Opt for complex carbs.", Icons.Default.MonitorWeight, 400),
-    ScalpTip("Gentle Washing", "Avoid hot water and harsh sulfates; they strip natural oils, leading to irritation.", Icons.Default.LocalHospital, 600)
+    // 💡 Using placeholder resource IDs (must match files in res/drawable)
+    ScalpTip("Hydration is Key", "Drink at least 8 glasses of water daily to maintain skin and scalp moisture.", R.drawable.tip_hydration, 200),
+    ScalpTip("Monitor Sugar Intake", "High glycemic diets can increase oil production. Opt for complex carbs.", R.drawable.tipp_carb_control, 400),
+    ScalpTip("Gentle Washing", "Avoid hot water and harsh sulfates; they strip natural oils, leading to irritation.", R.drawable.tip_gentle_wash, 600)
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,16 +55,16 @@ fun TipsScreen(onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentTerra, // 🎨 Changed from LeafGreen
-                    titleContentColor = PureCream, // 🎨 Changed from SoftCream
-                    navigationIconContentColor = PureCream // 🎨 Changed from SoftCream
+                    containerColor = AccentPrimary, // 💡 Changed from AccentTerra
+                    titleContentColor = BackgroundLight, // 💡 Changed from PureCream
+                    navigationIconContentColor = BackgroundLight // 💡 Changed from PureCream
                 )
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
-                .background(PureCream) // 🎨 Changed from SoftCream
+                .background(BackgroundLight) // 💡 Changed from PureCream
                 .padding(padding)
                 .fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -114,13 +115,16 @@ fun AnimatedTipCard(tip: ScalpTip) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Icon on the left (clean design)
-                Icon(
-                    imageVector = tip.icon,
+                // 💡 UPDATED: Replaced Icon with Image for local drawable resource
+                Image(
+                    painter = painterResource(id = tip.imageResId), // Use local resource ID
                     contentDescription = tip.title,
-                    tint = AccentTerra, // 🎨 Changed from LeafGreen
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(8.dp)), // Rounded corners for image
+                    contentScale = ContentScale.Crop // Use content scale for better fit
                 )
+
                 Spacer(Modifier.width(16.dp))
 
                 // Title and Subtitle in the center

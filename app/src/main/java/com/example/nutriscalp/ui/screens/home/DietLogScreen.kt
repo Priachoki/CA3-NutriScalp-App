@@ -13,8 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.nutriscalp.ui.theme.AccentTerra
-import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW
+import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,16 +33,16 @@ fun DietLogScreen(onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentTerra,
-                    titleContentColor = PureCream,
-                    navigationIconContentColor = PureCream
+                    containerColor = AccentPrimary, // 💡 Changed from AccentTerra
+                    titleContentColor = BackgroundLight, // 💡 Changed from PureCream
+                    navigationIconContentColor = BackgroundLight // 💡 Changed from PureCream
                 )
             )
         }
     ) { padding ->
         Column(
             modifier = Modifier
-                .background(PureCream)
+                .background(BackgroundLight) // 💡 Changed from PureCream
                 .padding(padding)
                 .padding(20.dp)
                 .fillMaxSize(),
@@ -63,8 +63,8 @@ fun DietLogScreen(onBack: () -> Unit) {
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AccentTerra,
-                    focusedLabelColor = AccentTerra,
+                    focusedBorderColor = AccentPrimary, // 💡 Changed from AccentTerra
+                    focusedLabelColor = AccentPrimary, // 💡 Changed from AccentTerra
                 )
             )
 
@@ -79,8 +79,8 @@ fun DietLogScreen(onBack: () -> Unit) {
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AccentTerra,
-                    focusedLabelColor = AccentTerra,
+                    focusedBorderColor = AccentPrimary, // 💡 Changed from AccentTerra
+                    focusedLabelColor = AccentPrimary, // 💡 Changed from AccentTerra
                 )
             )
 
@@ -93,8 +93,8 @@ fun DietLogScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().height(150.dp).padding(bottom = 32.dp),
                 maxLines = 5,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = AccentTerra,
-                    focusedLabelColor = AccentTerra,
+                    focusedBorderColor = AccentPrimary, // 💡 Changed from AccentTerra
+                    focusedLabelColor = AccentPrimary, // 💡 Changed from AccentTerra
                 )
             )
 
@@ -106,7 +106,7 @@ fun DietLogScreen(onBack: () -> Unit) {
                 },
                 modifier = Modifier.fillMaxWidth(0.6f).height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentTerra)
+                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary) // 💡 Changed from AccentTerra
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Meal")
                 Spacer(Modifier.width(8.dp))

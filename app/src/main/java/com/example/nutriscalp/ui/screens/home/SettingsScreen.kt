@@ -20,8 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.AppViewModel
 // 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentTerra
-import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW
+import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
 import com.example.nutriscalp.ui.theme.TextDark
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,16 +40,16 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentTerra, // 🎨 Changed from LeafGreen
-                    titleContentColor = PureCream, // 🎨 Changed from SoftCream
-                    navigationIconContentColor = PureCream // 🎨 Changed from SoftCream
+                    containerColor = AccentPrimary, // 💡 Changed from AccentTerra
+                    titleContentColor = BackgroundLight, // 💡 Changed from PureCream
+                    navigationIconContentColor = BackgroundLight // 💡 Changed from PureCream
                 )
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
-                .background(PureCream) // 🎨 Changed from SoftCream
+                .background(BackgroundLight) // 💡 Changed from PureCream
                 .padding(padding)
                 .fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -121,7 +121,7 @@ fun SettingsToggleItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(imageVector = icon, contentDescription = title, tint = AccentTerra) // 🎨 Changed from LeafGreen
+            Icon(imageVector = icon, contentDescription = title, tint = AccentPrimary) // 💡 Changed from AccentTerra
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleMedium, color = TextDark)
@@ -130,7 +130,7 @@ fun SettingsToggleItem(
             Switch(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(checkedTrackColor = AccentTerra) // 🎨 Changed from LeafGreen
+                colors = SwitchDefaults.colors(checkedTrackColor = AccentPrimary) // 💡 Changed from AccentTerra
             )
         }
     }
@@ -158,7 +158,7 @@ fun SettingsClickableItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Icon(imageVector = icon, contentDescription = title, tint = AccentTerra) // 🎨 Changed from LeafGreen
+            Icon(imageVector = icon, contentDescription = title, tint = AccentPrimary) // 💡 Changed from AccentTerra
             Spacer(Modifier.width(16.dp))
             Column {
                 Text(title, style = MaterialTheme.typography.titleMedium, color = TextDark)

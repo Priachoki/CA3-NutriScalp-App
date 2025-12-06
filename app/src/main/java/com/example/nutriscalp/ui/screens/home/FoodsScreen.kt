@@ -16,16 +16,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+// 💡 IMPORTANT: Import ContentScale to use ContentScale.Crop
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.nutriscalp.AppViewModel
 import com.example.nutriscalp.data.Food
-// 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentTerra // New Accent Color
-import com.example.nutriscalp.ui.theme.PureCream // New Background/Light Color
-import com.example.nutriscalp.ui.theme.TextDark // Text Color
+// 💡 UPDATED IMPORTS (Using new Deep Teal/Aqua color scheme)
+import com.example.nutriscalp.ui.theme.AccentPrimary
+import com.example.nutriscalp.ui.theme.BackgroundLight
+import com.example.nutriscalp.ui.theme.TextDark
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,22 +45,22 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentTerra, // 🎨 Changed from LeafGreen
-                    titleContentColor = PureCream, // 🎨 Changed from SoftCream
-                    navigationIconContentColor = PureCream // 🎨 Changed from SoftCream
+                    containerColor = AccentPrimary,
+                    titleContentColor = BackgroundLight,
+                    navigationIconContentColor = BackgroundLight
                 )
             )
         }
     ) { padding ->
         Column(
             modifier = Modifier
-                .background(PureCream) // 🎨 Changed from SoftCream
+                .background(BackgroundLight)
                 .padding(padding)
                 .fillMaxSize()
         ) {
             if (foods.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = AccentTerra) // 🎨 Changed from LeafGreen
+                    CircularProgressIndicator(color = AccentPrimary)
                 }
             } else {
                 // Lazy List with Card UI components
@@ -75,54 +77,64 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
     }
 }
 
-// Food Card with "Simplistic, Professional" styling (Coil implementation)
+// Food Card with "Large Image, Magazine-style" professional styling
 @Composable
 fun FoodCard(food: Food) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp), // Soft edges
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(2.dp) // Subtle elevation
+        elevation = CardDefaults.cardElevation(4.dp) // Stronger elevation for big card
     ) {
-        Row(
+        // 💡 MODIFIED: Changed from Row to Column to stack image and text
+        Column(
             modifier = Modifier
-                .padding(16.dp)
-                .clickable { /* TBD: Add navigation to detail screen */ },
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .clickable { /* TBD: Add navigation to detail screen */ }
         ) {
-            // Load and Display Images using Coil
+            // 💡 LARGE IMAGE IMPLEMENTATION
             AsyncImage(
                 model = food.imageUrl,
                 contentDescription = "${food.name} image",
                 modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(12.dp)), // Rounded corners for image
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    .fillMaxWidth() // Image spans the full width of the card
+                    .height(180.dp) // Big, fixed height
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)), // Clip top corners only
+                contentScale = ContentScale.Crop // Crop to fill the space
             )
-            Column(
-                modifier = Modifier.weight(1f)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp), // Padding applied to the text area
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    food.name,
-                    fontSize = 17.sp,
-                    color = TextDark,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    "Benefit: ${food.scalpBenefit}",
-                    fontSize = 13.sp,
-                    color = AccentTerra, // 🎨 Changed from LeafGreen
-                    fontWeight = FontWeight.Medium
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        food.name,
+                        fontSize = 20.sp, // Slightly larger title
+                        color = TextDark,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Benefit: ${food.scalpBenefit}",
+                        fontSize = 14.sp,
+                        color = AccentPrimary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                // Detail Arrow icon (kept small)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    contentDescription = "Details",
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(18.dp)
                 )
             }
-            // Detail Arrow icon
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = "Details",
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(16.dp)
-            )
         }
     }
 }

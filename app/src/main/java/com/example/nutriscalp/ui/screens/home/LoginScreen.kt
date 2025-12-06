@@ -13,10 +13,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.R
-// 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentTerra
+// 圷 UPDATED IMPORTS
+import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW
 import com.example.nutriscalp.ui.theme.NutriScalpTheme
-import com.example.nutriscalp.ui.theme.PureCream
+import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
 import com.example.nutriscalp.ui.theme.TextDark
 
 // Simplified Login Screen (Professional, Minimalist design)
@@ -28,7 +28,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PureCream) // 🎨 Changed from SoftCream
+            .background(BackgroundLight) // 💡 Changed from PureCream
             .padding(horizontal = 32.dp, vertical = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
@@ -62,8 +62,8 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = AccentTerra, // 🎨 Changed from LeafGreen
-                focusedLabelColor = AccentTerra, // 🎨 Changed from LeafGreen
+                focusedBorderColor = AccentPrimary, // 💡 Changed from AccentTerra
+                focusedLabelColor = AccentPrimary, // 💡 Changed from AccentTerra
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -77,8 +77,8 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = AccentTerra, // 🎨 Changed from LeafGreen
-                focusedLabelColor = AccentTerra, // 🎨 Changed from LeafGreen
+                focusedBorderColor = AccentPrimary, // 💡 Changed from AccentTerra
+                focusedLabelColor = AccentPrimary, // 💡 Changed from AccentTerra
             )
         )
         Spacer(modifier = Modifier.height(48.dp))
@@ -88,7 +88,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             onClick = onLoginSuccess,
             modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AccentTerra) // 🎨 Changed from LeafGreen
+            colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary) // 💡 Changed from AccentTerra
         ) {
             Text("LOGIN", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimary)
         }

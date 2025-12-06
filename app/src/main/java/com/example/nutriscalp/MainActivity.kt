@@ -26,6 +26,11 @@ import com.example.nutriscalp.ui.screens.SplashScreen
 import com.example.nutriscalp.ui.screens.home.HomeScreen
 import com.example.nutriscalp.ui.theme.NutriScalpTheme
 import kotlinx.coroutines.flow.flowOf
+// 🚨 NEW IMPORTS FOR MOCKING
+import com.example.nutriscalp.room.MealDao
+import com.example.nutriscalp.room.MealEntity
+import kotlinx.coroutines.flow.Flow
+
 
 // Initialization of DataStoreManager outside of a composable to be reused
 private lateinit var dataStoreManager: DataStoreManager
@@ -115,6 +120,16 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
 }
 
 
+// 🚨 NEW MOCK IMPLEMENTATIONS FOR PREVIEW FACTORY
+private val MockMealDao = object : MealDao {
+    override suspend fun insertMeal(meal: MealEntity) { /* No-op for preview */ }
+    // Return an empty flow for preview
+    override fun getAllMeals(): Flow<List<MealEntity>> = flowOf(emptyList())
+}
+
+private val MockMealRepository = MealRepository(MockMealDao)
+
+
 // Mock Factory for Preview (Cleaned and stable)
 private val MockAppViewModelFactory = object : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -122,7 +137,8 @@ private val MockAppViewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             return AppViewModel(
                 foodService = FoodService.instance,
-                dataStoreManager = DataStoreManager(null as Context)
+                dataStoreManager = DataStoreManager(null as Context),
+                mealRepository = MockMealRepository // 🚨 FIX: Pass the mock repository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
