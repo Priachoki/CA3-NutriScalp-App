@@ -23,8 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.R // 💡 REQUIRED for local resource IDs
 import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW COLOR
-import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW COLOR
-import com.example.nutriscalp.ui.theme.TextDark
+import com.example.nutriscalp.AppViewModel
 import kotlinx.coroutines.delay
 
 // Data structure for tips (Mock data)
@@ -32,19 +31,68 @@ data class ScalpTip(
     val title: String,
     val subtitle: String,
     val imageResId: Int, // 💡 CHANGED to Int for local resource ID
-    val delayMs: Long // For staggered animation
+    val delayMs: Long, // For staggered animation
+    val conditionTag: String // 💡 NEW: Tag for filtering
 )
 
-private val mockTips = listOf(
-    // 💡 Using placeholder resource IDs (must match files in res/drawable)
-    ScalpTip("Hydration is Key", "Drink at least 8 glasses of water daily to maintain skin and scalp moisture.", R.drawable.tip_hydration, 200),
-    ScalpTip("Monitor Sugar Intake", "High glycemic diets can increase oil production. Opt for complex carbs.", R.drawable.tipp_carb_control, 400),
-    ScalpTip("Gentle Washing", "Avoid hot water and harsh sulfates; they strip natural oils, leading to irritation.", R.drawable.tip_gentle_wash, 600)
+// 💡 NEW: Comprehensive list of tips categorized by scalp condition
+private val allTips = listOf(
+    // Tips for Oily Scalp
+    ScalpTip("Reduce Washing Frequency", "Over-washing can strip oils, leading to rebound overproduction. Aim for every 2-3 days.", R.drawable.tip_gentle_wash, 0, "Oiliness"),
+    ScalpTip("Monitor Sugar Intake", "High glycemic diets can increase oil production. Opt for complex carbs.", R.drawable.tipp_carb_control, 0, "Oiliness"),
+    ScalpTip("Use Clay Masks", "A detoxifying clay mask can absorb excess sebum without stripping the scalp.", R.drawable.tip_gentle_wash, 0, "Oiliness"),
+
+    // Tips for Dry Scalp
+    ScalpTip("Hydration is Key", "Drink at least 8 glasses of water daily to maintain skin and scalp moisture.", R.drawable.tip_hydration, 0, "Dryness"),
+    ScalpTip("Avoid Harsh Shampoos", "Use sulfate-free and moisturizing products to retain natural oils.", R.drawable.tip_gentle_wash, 0, "Dryness"),
+    ScalpTip("Use Humidifiers", "Increase the moisture in your environment, especially during dry seasons.", R.drawable.tip_hydration, 0, "Dryness"),
+
+    // Tips for Inflammation
+    ScalpTip("Eat Anti-inflammatory Foods", "Increase Omega-3s (salmon, walnuts) to reduce irritation and redness.", R.drawable.tipp_carb_control, 0, "Inflammation"),
+    ScalpTip("Avoid Scratching", "Minimize physical irritation; use cooling products instead of scratching.", R.drawable.tip_gentle_wash, 0, "Inflammation"),
+    ScalpTip("Lukewarm Water Only", "Hot water can aggravate inflamed skin. Use cool or lukewarm water when washing.", R.drawable.tip_gentle_wash, 0, "Inflammation")
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TipsScreen(onBack: () -> Unit) {
+fun TipsScreen(appViewModel: AppViewModel, onBack: () -> Unit) { // 💡 MODIFIED: Added AppViewModel
+
+    // 💡 NEW: Collect the current Scalp Score
+    val scalpScore by appViewModel.scalpScore.collectAsState()
+
+    // 💡 NEW: Filtering Logic based on ScalpScore state
+    val filteredTips = remember(scalpScore) {
+        val tips = mutableListOf<ScalpTip>()
+
+        // Parse the percentage strings to Int for threshold comparison
+        val drynessValue = scalpScore.dryness.trim('%').toIntOrNull() ?: 0
+        val oilinessValue = scalpScore.oiliness.trim('%').toIntOrNull() ?: 0
+
+        // Filter tips based on conditions (assuming > 50% is 'high' or 'problematic')
+        if (drynessValue > 50) {
+            tips.addAll(allTips.filter { it.conditionTag == "Dryness" })
+        }
+
+        if (oilinessValue > 50) {
+            tips.addAll(allTips.filter { it.conditionTag == "Oiliness" })
+        }
+
+        // Check for specific inflammation status
+        if (scalpScore.inflammation.equals("High", ignoreCase = true)) {
+            tips.addAll(allTips.filter { it.conditionTag == "Inflammation" })
+        }
+
+        // Fallback: If no condition is critical, show all tips for a general healthy routine
+        if (tips.isEmpty()) {
+            tips.addAll(allTips.filter { it.conditionTag == "Dryness" || it.conditionTag == "Oiliness" }.distinctBy { it.title })
+        }
+
+        // Remove duplicates and re-index delayMs for staggered animation
+        tips.distinctBy { it.title }.mapIndexed { index, tip ->
+            tip.copy(delayMs = (index + 1) * 200L)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,16 +103,16 @@ fun TipsScreen(onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentPrimary, // 💡 Changed from AccentTerra
-                    titleContentColor = BackgroundLight, // 💡 Changed from PureCream
-                    navigationIconContentColor = BackgroundLight // 💡 Changed from PureCream
+                    containerColor = AccentPrimary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
-                .background(BackgroundLight) // 💡 Changed from PureCream
+                .background(MaterialTheme.colorScheme.background) // Use dynamic background color
                 .padding(padding)
                 .fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -72,15 +120,16 @@ fun TipsScreen(onBack: () -> Unit) {
         ) {
             item {
                 Text(
-                    "Discover the best practices for a healthier scalp.",
+                    "Tips for your current condition:",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextDark,
+                    color = MaterialTheme.colorScheme.onBackground, // Use dynamic text color
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
             }
 
-            // Scrollable List of Animated Tips (Animation requirement)
-            itemsIndexed(mockTips) { index, tip ->
+            // 💡 MODIFIED: Use the filteredTips list
+            itemsIndexed(filteredTips) { index, tip ->
                 AnimatedTipCard(tip = tip)
             }
         }
@@ -132,12 +181,13 @@ fun AnimatedTipCard(tip: ScalpTip) {
                     Text(
                         tip.title,
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextDark,
+                        color = MaterialTheme.colorScheme.onSurface, // Use dynamic text color
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         tip.subtitle,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Use dynamic secondary text color
                     )
                 }
 

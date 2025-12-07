@@ -7,12 +7,18 @@ import com.example.nutriscalp.data.DataStoreManager
 import com.example.nutriscalp.data.Food
 import com.example.nutriscalp.data.FoodService
 import com.example.nutriscalp.data.MealRepository
+import com.example.nutriscalp.data.UserRepository
 import com.example.nutriscalp.room.MealEntity
+import com.example.nutriscalp.room.UserEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted // 💡 NEW IMPORT
+import kotlinx.coroutines.flow.stateIn // 💡 NEW IMPORT
+import java.util.Calendar // 💡 FIXED: Use Calendar for API 24 compatibility
 
 // Data class to hold the static UI state
 data class ScalpScore(
@@ -24,7 +30,8 @@ data class ScalpScore(
 class AppViewModel(
     private val foodService: FoodService,
     private val dataStoreManager: DataStoreManager,
-    private val mealRepository: MealRepository
+    private val mealRepository: MealRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     // Architecture Components: State Flow (Static default)
@@ -40,12 +47,90 @@ class AppViewModel(
     private val _meals = MutableStateFlow<List<MealEntity>>(emptyList())
     val meals: StateFlow<List<MealEntity>> = _meals.asStateFlow()
 
+    private val _isUserLoggedIn = MutableStateFlow(false)
+    val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
+
+    // Helper function to check if a timestamp falls on today's date (API 24 safe)
+    private fun isToday(timestamp: Long): Boolean {
+        // Get the start of today's date in milliseconds
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val startOfToday = calendar.timeInMillis
+
+        // Get the start of tomorrow's date
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        val startOfTomorrow = calendar.timeInMillis
+
+        // Check if the timestamp is between the start of today and the start of tomorrow
+        return timestamp >= startOfToday && timestamp < startOfTomorrow
+    }
+
+    // 💡 FIXED: Use stateIn to convert Flow to StateFlow with an initial value, and use isToday()
+    val todayCalories: StateFlow<Int> = meals.map { mealsList ->
+        mealsList.filter { meal ->
+            isToday(meal.timestamp)
+        }.sumOf { it.calories }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000), // Keep the flow active while UI is visible
+        initialValue = 0 // Initial value
+    )
+
 
     init {
         Log.d("NutriScalpApp", "AppViewModel initialized. Fetching initial data.")
         fetchFoods()
         loadPreferences()
         loadMeals()
+        seedDatabase()
+    }
+
+    // 💡 Function to get a single Food object by ID
+    fun getFoodById(foodId: Int): Food? {
+        return _foods.value.find { it.id == foodId }
+    }
+
+    fun logout(onLogoutSuccess: () -> Unit) {
+        viewModelScope.launch {
+            // In a real app, you would clear user tokens/DataStore prefs here.
+            _isUserLoggedIn.value = false
+            onLogoutSuccess()
+            Log.i("NutriScalpApp", "User logged out.")
+        }
+    }
+
+    private fun seedDatabase() {
+        viewModelScope.launch {
+            val userEmail = "test@nutriscalp.com"
+            if (!userRepository.userExists(userEmail)) {
+                // Password: "password" -> Hash: "password_hash_1234" (simplified for demo)
+                val dummyUser = UserEntity(
+                    email = userEmail,
+                    passwordHash = "password_hash_1234",
+                    fullName = "NutriScalp Tester"
+                )
+                userRepository.insertUser(dummyUser)
+                Log.d("NutriScalpApp", "Seeded user: $userEmail")
+            }
+        }
+    }
+
+    fun loginUser(email: String, passwordHash: String, onLoginSuccess: () -> Unit, onLoginFailure: () -> Unit) {
+        viewModelScope.launch {
+            val user = userRepository.getUserByCredentials(email, passwordHash)
+            if (user != null) {
+                _isUserLoggedIn.value = true
+                onLoginSuccess()
+                Log.i("NutriScalpApp", "User logged in: ${user.email}")
+            } else {
+                _isUserLoggedIn.value = false
+                onLoginFailure()
+                Log.w("NutriScalpApp", "Login failed for email: $email")
+            }
+        }
     }
 
     // Getting Data from Internet (mocked)
@@ -77,6 +162,7 @@ class AppViewModel(
         }
     }
 
+    // 💡 MODIFIED: Meal save is now exposed to the UI
     fun saveMeal(mealName: String, calories: Int, notes: String) {
         viewModelScope.launch {
             val meal = MealEntity(
@@ -101,7 +187,8 @@ class AppViewModel(
         fun factory(
             foodService: FoodService,
             dataStoreManager: DataStoreManager,
-            mealRepository: MealRepository
+            mealRepository: MealRepository,
+            userRepository: UserRepository
         ) = object : androidx.lifecycle.ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(AppViewModel::class.java)) {
@@ -109,7 +196,8 @@ class AppViewModel(
                     return AppViewModel(
                         foodService,
                         dataStoreManager,
-                        mealRepository
+                        mealRepository,
+                        userRepository
                     ) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")

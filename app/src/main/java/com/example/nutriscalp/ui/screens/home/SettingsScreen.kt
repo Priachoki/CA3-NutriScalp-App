@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Logout // 💡 NEW IMPORT
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,14 +20,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.AppViewModel
-// 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW
-import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
-import com.example.nutriscalp.ui.theme.TextDark
+import com.example.nutriscalp.ui.theme.AccentPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
+fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () -> Unit) { // 💡 MODIFIED PARAMETER
     // Use DataStore: Collect the preference from the ViewModel
     val isDarkModeEnabled by appViewModel.isDarkMode.collectAsState()
 
@@ -40,16 +38,16 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = AccentPrimary, // 💡 Changed from AccentTerra
-                    titleContentColor = BackgroundLight, // 💡 Changed from PureCream
-                    navigationIconContentColor = BackgroundLight // 💡 Changed from PureCream
+                    containerColor = AccentPrimary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
-                .background(BackgroundLight) // 💡 Changed from PureCream
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -59,7 +57,7 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 Text(
                     "Display & Theme",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextDark,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
                 )
@@ -81,7 +79,7 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 Text(
                     "Data Management",
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextDark,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
                 )
@@ -94,6 +92,28 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                     title = "Sync Data Now",
                     subtitle = "Trigger mock API refresh",
                     onClick = { /* In a real app: Trigger fetchFoods */ }
+                )
+            }
+
+            // 💡 NEW SECTION: Account Management
+            item {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "Account",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
+                )
+            }
+
+            // 💡 NEW ITEM: Logout Button
+            item {
+                SettingsClickableItem(
+                    icon = Icons.Default.Logout,
+                    title = "Logout",
+                    subtitle = "Sign out of your NutriScalp account",
+                    onClick = { appViewModel.logout(onLogout) } // 💡 Call logout, which triggers navigation
                 )
             }
         }
@@ -112,7 +132,8 @@ fun SettingsToggleItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(1.dp)
+        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -121,16 +142,16 @@ fun SettingsToggleItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(imageVector = icon, contentDescription = title, tint = AccentPrimary) // 💡 Changed from AccentTerra
+            Icon(imageVector = icon, contentDescription = title, tint = AccentPrimary)
             Spacer(Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = TextDark)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(checkedTrackColor = AccentPrimary) // 💡 Changed from AccentTerra
+                colors = SwitchDefaults.colors(checkedTrackColor = AccentPrimary)
             )
         }
     }
@@ -149,7 +170,8 @@ fun SettingsClickableItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(1.dp)
+        elevation = CardDefaults.cardElevation(1.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -158,11 +180,11 @@ fun SettingsClickableItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Icon(imageVector = icon, contentDescription = title, tint = AccentPrimary) // 💡 Changed from AccentTerra
+            Icon(imageVector = icon, contentDescription = title, tint = AccentPrimary)
             Spacer(Modifier.width(16.dp))
             Column {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = TextDark)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

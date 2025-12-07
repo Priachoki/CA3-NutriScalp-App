@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-// 💡 IMPORTANT: Import ContentScale to use ContentScale.Crop
+// 庁 IMPORTANT: Import ContentScale to use ContentScale.Crop
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,14 +24,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.nutriscalp.AppViewModel
 import com.example.nutriscalp.data.Food
-// 💡 UPDATED IMPORTS (Using new Deep Teal/Aqua color scheme)
 import com.example.nutriscalp.ui.theme.AccentPrimary
-import com.example.nutriscalp.ui.theme.BackgroundLight
-import com.example.nutriscalp.ui.theme.TextDark
+import com.example.nutriscalp.AppDestinations // 💡 NEW IMPORT
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
+fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: Added onNavigateToDetail
+
     // Retrofit: Collect food data fetched via ViewModel
     val foods by appViewModel.foods.collectAsState()
 
@@ -46,15 +45,15 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = AccentPrimary,
-                    titleContentColor = BackgroundLight,
-                    navigationIconContentColor = BackgroundLight
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         }
     ) { padding ->
         Column(
             modifier = Modifier
-                .background(BackgroundLight)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .fillMaxSize()
         ) {
@@ -69,7 +68,7 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(foods) { food ->
-                        FoodCard(food = food)
+                        FoodCard(food = food, onNavigateToDetail = onNavigateToDetail) // 💡 MODIFIED: Pass navigation lambda
                     }
                 }
             }
@@ -79,20 +78,20 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
 
 // Food Card with "Large Image, Magazine-style" professional styling
 @Composable
-fun FoodCard(food: Food) {
+fun FoodCard(food: Food, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: Added onNavigateToDetail
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp), // Soft edges
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp) // Stronger elevation for big card
     ) {
-        // 💡 MODIFIED: Changed from Row to Column to stack image and text
+        // 庁 MODIFIED: Changed from Row to Column to stack image and text
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* TBD: Add navigation to detail screen */ }
+                .clickable { onNavigateToDetail(food.id) } // 💡 FIXED: Navigate to detail
         ) {
-            // 💡 LARGE IMAGE IMPLEMENTATION
+            // 庁 LARGE IMAGE IMPLEMENTATION
             AsyncImage(
                 model = food.imageUrl,
                 contentDescription = "${food.name} image",
@@ -116,14 +115,14 @@ fun FoodCard(food: Food) {
                     Text(
                         food.name,
                         fontSize = 20.sp, // Slightly larger title
-                        color = TextDark,
+                        color = MaterialTheme.colorScheme.onSurface, // 💡 FIXED: Uses dynamic text color for cards
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         "Benefit: ${food.scalpBenefit}",
                         fontSize = 14.sp,
-                        color = AccentPrimary,
+                        color = AccentPrimary, // AccentPrimary does not change for this look
                         fontWeight = FontWeight.Medium
                     )
                 }

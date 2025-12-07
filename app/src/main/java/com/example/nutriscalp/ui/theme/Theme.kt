@@ -1,15 +1,31 @@
 package com.example.nutriscalp.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import com.example.nutriscalp.AppViewModel
+
+private val DarkColorScheme = darkColorScheme(
+    primary = AccentDark, // Lighter accent for dark background
+    secondary = AccentSecondary,
+    background = BackgroundDark, // Black/Dark Grey
+    surface = SurfaceDark, // Darker surface for cards
+    onPrimary = TextDark, // Text on primary color
+    onSecondary = TextLight,
+    onBackground = TextLight, // White text on dark background
+    onSurface = TextLight
+)
 
 private val LightColorScheme = lightColorScheme(
-    primary = AccentPrimary, // 💡 Used AccentPrimary (Deep Teal)
-    secondary = AccentSecondary, // 💡 Used AccentSecondary (Light Aqua)
-    background = BackgroundLight, // 💡 Used BackgroundLight (Clean Grey)
-    surface = SurfaceCard, // 💡 Used SurfaceCard (Pure White)
+    primary = AccentPrimary, // Deep Teal
+    secondary = AccentSecondary, // Light Aqua
+    background = BackgroundLight, // Clean Grey
+    surface = SurfaceCard, // Pure White
     onPrimary = TextLight, // Text on primary color
     onSecondary = TextDark,
     onBackground = TextDark,
@@ -17,9 +33,21 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun NutriScalpTheme(content: @Composable () -> Unit) {
+fun NutriScalpTheme(
+    appViewModel: AppViewModel, // 💡 NEW: Accept ViewModel
+    content: @Composable () -> Unit
+) {
+    // 💡 NEW: Collect the Dark Mode state from the ViewModel
+    val isDarkMode by appViewModel.isDarkMode.collectAsState()
+
+    val colorScheme = if (isDarkMode) {
+        DarkColorScheme
+    } else {
+        LightColorScheme
+    }
+
     MaterialTheme(
-        colorScheme = LightColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

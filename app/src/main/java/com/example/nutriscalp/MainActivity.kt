@@ -10,12 +10,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.nutriscalp.data.DataStoreManager
 import com.example.nutriscalp.data.FoodService
 import com.example.nutriscalp.data.MealRepository
+import com.example.nutriscalp.data.UserRepository
 import com.example.nutriscalp.room.AppDatabase
 import com.example.nutriscalp.ui.screens.DietLogScreen
 import com.example.nutriscalp.ui.screens.FoodsScreen
@@ -29,6 +32,10 @@ import kotlinx.coroutines.flow.flowOf
 // 🚨 NEW IMPORTS FOR MOCKING
 import com.example.nutriscalp.room.MealDao
 import com.example.nutriscalp.room.MealEntity
+import com.example.nutriscalp.room.UserDao
+import com.example.nutriscalp.room.UserEntity
+import com.example.nutriscalp.ui.screens.FoodDetailScreen // 💡 NEW IMPORT
+import com.example.nutriscalp.ui.screens.MealHistoryScreen // 💡 NEW IMPORT
 import kotlinx.coroutines.flow.Flow
 
 
@@ -48,12 +55,14 @@ class MainActivity : ComponentActivity() {
             val database = AppDatabase.getDatabase(applicationContext)
 
             val mealRepository = MealRepository(database.mealDao())
+            val userRepository = UserRepository(database.userDao()) // Added from last step
 
             val appViewModel: AppViewModel = viewModel(
                 factory = AppViewModel.factory(
                     foodService = FoodService.instance,
                     dataStoreManager = dataStoreManager,
-                    mealRepository = mealRepository
+                    mealRepository = mealRepository,
+                    userRepository = userRepository
                 )
             )
 
@@ -66,7 +75,7 @@ class MainActivity : ComponentActivity() {
 fun NutriScalpApp(appViewModel: AppViewModel) {
     val navController = rememberNavController()
     // Navigation between Screens
-    NutriScalpTheme {
+    NutriScalpTheme(appViewModel = appViewModel) {
         NavHost(
             navController = navController,
             startDestination = AppDestinations.SPLASH_ROUTE
@@ -81,11 +90,14 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
 
             // LOGIN SCREEN -> HOME
             composable(AppDestinations.LOGIN_ROUTE) {
-                LoginScreen(onLoginSuccess = {
-                    // Navigate to HOME and clear all previous screens (Splash/Login)
-                    navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
-                    navController.navigate(AppDestinations.HOME_ROUTE)
-                })
+                LoginScreen(
+                    appViewModel = appViewModel,
+                    onLoginSuccess = {
+                        // Navigate to HOME and clear all previous screens (Splash/Login)
+                        navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
+                        navController.navigate(AppDestinations.HOME_ROUTE)
+                    }
+                )
             }
 
             // HOME SCREEN (Main Content)
@@ -98,22 +110,56 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
 
             // FOODS SCREEN
             composable(AppDestinations.FOODS_ROUTE) {
-                FoodsScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
+                FoodsScreen(
+                    appViewModel = appViewModel,
+                    onBack = { navController.popBackStack() },
+                    // 💡 NEW NAVIGATION for Food Detail
+                    onNavigateToDetail = { foodId ->
+                        navController.navigate("${AppDestinations.FOOD_DETAIL_BASE_ROUTE}/$foodId")
+                    }
+                )
+            }
+
+            // FOOD DETAIL SCREEN 💡 NEW ROUTE WITH ARGUMENT
+            composable(
+                route = AppDestinations.FOOD_DETAIL_ROUTE,
+                arguments = listOf(navArgument("foodId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val foodId = backStackEntry.arguments?.getInt("foodId")
+                FoodDetailScreen(
+                    appViewModel = appViewModel,
+                    foodId = foodId,
+                    onBack = { navController.popBackStack() }
+                )
             }
 
             // DIET LOG SCREEN (New Feature)
             composable(AppDestinations.DIET_LOG_ROUTE) {
-                DietLogScreen(onBack = { navController.popBackStack() })
+                DietLogScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() }) // 💡 MODIFIED
             }
+
+            // MEAL HISTORY SCREEN 💡 NEW ROUTE
+            composable(AppDestinations.MEAL_HISTORY_ROUTE) {
+                MealHistoryScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
+            }
+
 
             // TIPS SCREEN (Animation)
             composable(AppDestinations.TIPS_ROUTE) {
-                TipsScreen(onBack = { navController.popBackStack() })
+                TipsScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
             }
 
             // SETTINGS SCREEN (DataStore)
             composable(AppDestinations.SETTINGS_ROUTE) {
-                SettingsScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
+                SettingsScreen(
+                    appViewModel = appViewModel,
+                    onBack = { navController.popBackStack() },
+                    // 💡 NEW LOGOUT LOGIC: Clear back stack and navigate to LOGIN
+                    onLogout = {
+                        navController.popBackStack(route = AppDestinations.HOME_ROUTE, inclusive = true)
+                        navController.navigate(AppDestinations.LOGIN_ROUTE)
+                    }
+                )
             }
         }
     }
@@ -127,7 +173,14 @@ private val MockMealDao = object : MealDao {
     override fun getAllMeals(): Flow<List<MealEntity>> = flowOf(emptyList())
 }
 
+private val MockUserDao = object : UserDao {
+    override suspend fun insertUser(user: UserEntity): Long = 0L
+    override suspend fun getUserByCredentials(email: String, passwordHash: String): UserEntity? = null
+    override suspend fun countUserByEmail(email: String): Int = 0
+}
+
 private val MockMealRepository = MealRepository(MockMealDao)
+private val MockUserRepository = UserRepository(MockUserDao)
 
 
 // Mock Factory for Preview (Cleaned and stable)
@@ -138,7 +191,8 @@ private val MockAppViewModelFactory = object : ViewModelProvider.Factory {
             return AppViewModel(
                 foodService = FoodService.instance,
                 dataStoreManager = DataStoreManager(null as Context),
-                mealRepository = MockMealRepository // 🚨 FIX: Pass the mock repository
+                mealRepository = MockMealRepository,
+                userRepository = MockUserRepository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
@@ -150,7 +204,7 @@ private val MockAppViewModelFactory = object : ViewModelProvider.Factory {
 fun HomePreview() {
     val mockViewModel: AppViewModel = viewModel(factory = MockAppViewModelFactory)
 
-    NutriScalpTheme {
+    NutriScalpTheme(appViewModel = mockViewModel) {
         HomeScreen(
             appViewModel = mockViewModel,
             onNavigate = {}

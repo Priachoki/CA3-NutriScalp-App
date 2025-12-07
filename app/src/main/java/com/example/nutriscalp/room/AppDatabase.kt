@@ -5,10 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [MealEntity::class], version = 1, exportSchema = false)
+// 💡 UPDATE: Add UserEntity and increment version
+@Database(entities = [MealEntity::class, UserEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun mealDao(): MealDao
+    abstract fun userDao(): UserDao // 💡 NEW: Expose UserDao
 
     companion object {
         @Volatile
@@ -20,7 +22,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "nutriscalp_database"
-                ).build().also { Instance = it }
+                )
+                    // 💡 ADD: Allows database schema changes without writing migrations
+                    .fallbackToDestructiveMigration()
+                    .build().also { Instance = it }
             }
     }
 }

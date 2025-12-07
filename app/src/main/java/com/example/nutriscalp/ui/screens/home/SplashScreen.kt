@@ -16,8 +16,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.nutriscalp.R
-// 🚨 UPDATED IMPORT
-import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
+import androidx.compose.material3.MaterialTheme
 import kotlinx.coroutines.delay
 
 @Composable
@@ -41,7 +40,7 @@ fun SplashScreen(onNavigateToHome: () -> Unit) {
 
     Box(
         modifier = Modifier
-            .background(BackgroundLight) // 💡 Changed from PureCream
+            .background(MaterialTheme.colorScheme.background) // 💡 FIXED
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {

@@ -27,25 +27,22 @@ import androidx.compose.ui.unit.sp
 import com.example.nutriscalp.AppDestinations
 import com.example.nutriscalp.AppViewModel
 import com.example.nutriscalp.R
-// 🚨 UPDATED IMPORTS
-import com.example.nutriscalp.ui.theme.AccentPrimary // 💡 NEW
-import com.example.nutriscalp.ui.theme.AccentSecondary // 💡 NEW
-import com.example.nutriscalp.ui.theme.BackgroundLight // 💡 NEW
-import com.example.nutriscalp.ui.theme.TextDark
-import com.example.nutriscalp.ui.theme.TextLight
+import com.example.nutriscalp.ui.theme.AccentPrimary
+import com.example.nutriscalp.ui.theme.AccentSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
     val scalpScore by appViewModel.scalpScore.collectAsState()
+    val todayCalories by appViewModel.todayCalories.collectAsState(initial = 0) // 💡 NEW: Collect today's calories
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { NutriScalpImageLogo() },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = BackgroundLight, // 💡 Changed from PureCream
-                    titleContentColor = TextDark
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         }
@@ -53,7 +50,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
 
         Column(
             modifier = Modifier
-                .background(BackgroundLight) // 💡 Changed from PureCream
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .padding(horizontal = 20.dp)
                 .fillMaxSize()
@@ -62,37 +59,56 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
             UserHeader(userName = "Vanessa")
             Spacer(modifier = Modifier.height(20.dp))
 
-            // ===== SCORE CARD =====
+            // ===== SCORE CARD (UPDATED WITH CALORIE STAT) =====
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 20.dp),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Uses surface (PureWhite)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(24.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            "Today's Scalp Score",
+                            "Today's Health Summary", // 💡 MODIFIED TITLE
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
-                            color = AccentSecondary, // 💡 Changed from RichBrown
+                            color = AccentSecondary,
                             modifier = Modifier.weight(1f)
                         )
                         // Logo Icon in the Score Card
                         Icon(
                             painter = painterResource(id = R.drawable.nutriscalp_logo),
                             contentDescription = "Scalp Health Icon",
-                            tint = AccentPrimary, // 💡 Changed from AccentTerra
+                            tint = AccentPrimary,
                             modifier = Modifier.size(32.dp)
                         )
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text("Dryness: ${scalpScore.dryness}", fontSize = 16.sp, color = TextDark)
-                    Text("Oiliness: ${scalpScore.oiliness}", fontSize = 16.sp, color = TextDark)
-                    Text("Inflammation: ${scalpScore.inflammation}", fontSize = 16.sp, color = TextDark)
+                    Text("Calories Logged: $todayCalories kcal", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) // 💡 NEW DATA
+                    Text("Dryness: ${scalpScore.dryness}", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text("Oiliness: ${scalpScore.oiliness}", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text("Inflammation: ${scalpScore.inflammation}", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+
+                    // 💡 Simple Visualization Placeholder
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Meal History Trend (Mock Chart)",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    // You would place a custom drawing Canvas or charting library component here
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(AccentSecondary.copy(alpha = 0.1f))
+                        .padding(8.dp)
+                    ) {
+                        Text("Chart placeholder - Visualize 7-day calorie trend here.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                    }
                 }
             }
 
@@ -100,7 +116,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                 text = "Quick Access",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -115,7 +131,7 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                 QuickButton(
                     title = "Diet Log",
                     icon = Icons.Default.ListAlt,
-                    onClick = { onNavigate(AppDestinations.DIET_LOG_ROUTE) } // 🚨 LINKED
+                    onClick = { onNavigate(AppDestinations.DIET_LOG_ROUTE) }
                 )
             }
 
@@ -127,6 +143,17 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                     icon = Icons.Default.Lightbulb,
                     onClick = { onNavigate(AppDestinations.TIPS_ROUTE) }
                 )
+                // 💡 ADDED MEAL HISTORY BUTTON
+                QuickButton(
+                    title = "History",
+                    icon = Icons.Default.ListAlt,
+                    onClick = { onNavigate(AppDestinations.MEAL_HISTORY_ROUTE) }
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Replaced old Diet Log Quick Button for Settings
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
                 QuickButton(
                     title = "Settings",
                     icon = Icons.Default.Settings,
@@ -137,8 +164,8 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
     }
 }
 
-// ===== NEW COMPOSABLES (Color corrected) =====
-
+// ... UserHeader, NutriScalpImageLogo, QuickButton remain the same ...
+// Omitting these functions for brevity, assume they are included in the file.
 @Composable
 fun UserHeader(userName: String) {
     Row(
@@ -153,7 +180,7 @@ fun UserHeader(userName: String) {
                 "Hello, $userName",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 "Your wellness journey starts here",
@@ -166,11 +193,11 @@ fun UserHeader(userName: String) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(AccentSecondary.copy(alpha = 0.5f)) // 💡 Changed from RichBrown
+                .background(AccentSecondary.copy(alpha = 0.5f))
                 .clickable { /* TBD: Go to profile */ },
             contentAlignment = Alignment.Center
         ) {
-            Text(userName.first().toString(), fontSize = 20.sp, color = TextLight, fontWeight = FontWeight.Bold)
+            Text(userName.first().toString(), fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -194,7 +221,7 @@ fun QuickButton(title: String, icon: ImageVector, onClick: () -> Unit) {
             .size(width = 150.dp, height = 100.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Uses theme surface
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -207,14 +234,14 @@ fun QuickButton(title: String, icon: ImageVector, onClick: () -> Unit) {
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = AccentPrimary, // 💡 Changed from AccentTerra
+                tint = AccentPrimary,
                 modifier = Modifier.size(24.dp)
             )
             Text(
                 text = title,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
