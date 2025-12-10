@@ -31,22 +31,26 @@ import com.example.nutriscalp.AppDestinations // 💡 NEW IMPORT
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: Added onNavigateToDetail
+fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDetail: (Int) -> Unit) {
 
-    // Retrofit: Collect food data fetched via ViewModel
     val foods by appViewModel.foods.collectAsState()
     val scalp by appViewModel.scalpScore.collectAsState()
 
-    val recommendedFoods = foods.filter { food ->
-        val drynessValue = scalp.dryness.removeSuffix("%").toInt()
-        val oilinessValue = scalp.oiliness.removeSuffix("%").toInt()
-        val inflamValue = scalp.inflammation
+    // choose user scalp conditions based on their scores
+    val userConditions = mutableListOf<String>()
 
-        when {
-            drynessValue > 50 && food.category == "Dryness" -> true
-            oilinessValue > 50 && food.category == "Oiliness" -> true
-            inflamValue == "High" && food.category == "Inflammation" -> true
-            else -> false
+    val drynessValue = scalp.dryness.removeSuffix("%").toIntOrNull() ?: 0
+    val oilinessValue = scalp.oiliness.removeSuffix("%").toIntOrNull() ?: 0
+    val inflamValue = scalp.inflammation
+
+    if (drynessValue > 50) userConditions.add("Dryness")
+    if (oilinessValue > 50) userConditions.add("Oiliness")
+    if (inflamValue == "High") userConditions.add("Inflammation")
+
+    // filter foods that match ANY of the user condition
+    val recommendedFoods = foods.filter { food ->
+        userConditions.any { condition ->
+            food.category.contains(condition, ignoreCase = true)
         }
     }
 
