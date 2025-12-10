@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.androidx.room.common.jvm)
+    implementation(libs.foundation)
     ksp(libs.room.compiler)   // <-- Works now because plugin is applied
 
     //  NO ROOM COMMON, NO OTHER COMPILERS, NO DUPLICATES

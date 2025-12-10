@@ -1,5 +1,6 @@
 package com.example.nutriscalp.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 // 庁 IMPORTANT: Import ContentScale to use ContentScale.Crop
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -113,16 +115,16 @@ fun FoodCard(food: Food, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: 
                 .fillMaxWidth()
                 .clickable { onNavigateToDetail(food.id) } // 💡 FIXED: Navigate to detail
         ) {
-            // 庁 LARGE IMAGE IMPLEMENTATION
-            AsyncImage(
-                model = food.imageUrl,
-                contentDescription = "${food.name} image",
+            Image(
+                painter = painterResource(id = food.imageRes),
+                contentDescription = food.name,
                 modifier = Modifier
-                    .fillMaxWidth() // Image spans the full width of the card
-                    .height(180.dp) // Big, fixed height
-                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)), // Clip top corners only
-                contentScale = ContentScale.Crop // Crop to fill the space
+                    .fillMaxWidth()
+                    .height(180.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                contentScale = ContentScale.Crop
             )
+
 
             Row(
                 modifier = Modifier

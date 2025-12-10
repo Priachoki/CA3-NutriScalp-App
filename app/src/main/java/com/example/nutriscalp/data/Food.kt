@@ -4,8 +4,11 @@ package com.example.nutriscalp.data
 data class Food(
     val id: Int,
     val name: String,
-    val imageUrl: String,
+    val imageRes: Int,
     val description: String,
     val scalpBenefit: String,
-    val category: String
+    val category: String,
+    val nutrients: String,
+    val howToEat: String,
+    val bestPairings: String
 )

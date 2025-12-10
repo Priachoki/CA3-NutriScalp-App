@@ -105,23 +105,70 @@ class AppViewModel(
 
     private fun seedDatabase() {
         viewModelScope.launch {
-            val userEmail = "test@nutriscalp.com"
-            if (!userRepository.userExists(userEmail)) {
-                // Password: "password" -> Hash: "password_hash_1234" (simplified for demo)
-                val dummyUser = UserEntity(
-                    email = userEmail,
-                    passwordHash = "password_hash_1234",
-                    fullName = "NutriScalp Tester",
 
+            // ALL demo users share this hashed password ("password")
+            val HASH = "password_hash_1234"
+
+            val demoUsers = listOf(
+                UserEntity(
+                    email = "test@nutriscalp.com",
+                    passwordHash = HASH,
+                    fullName = "NutriScalp Tester",
                     dryness = 70,
-                    oiliness =20,
+                    oiliness = 20,
                     inflammation = 1
+                ),
+                UserEntity(
+                    email = "dryness@nutriscalp.com",
+                    passwordHash = HASH,
+                    fullName = "Dryness User",
+                    dryness = 90,
+                    oiliness = 10,
+                    inflammation = 0
+                ),
+                UserEntity(
+                    email = "oil@nutriscalp.com",
+                    passwordHash = HASH,
+                    fullName = "Oily User",
+                    dryness = 10,
+                    oiliness = 90,
+                    inflammation = 0
+                ),
+                UserEntity(
+                    email = "inflammation@nutriscalp.com",
+                    passwordHash = HASH,
+                    fullName = "Inflammation User",
+                    dryness = 20,
+                    oiliness = 20,
+                    inflammation = 2
+                ),
+                UserEntity(
+                    email = "mixed@nutriscalp.com",
+                    passwordHash = HASH,
+                    fullName = "Mixed Scalp User",
+                    dryness = 60,
+                    oiliness = 70,
+                    inflammation = 2
+                ),
+                UserEntity(
+                    email = "new@nutriscalp.com",
+                    passwordHash = HASH,
+                    fullName = "New User",
+                    dryness = 0,
+                    oiliness = 0,
+                    inflammation = 0
                 )
-                userRepository.insertUser(dummyUser)
-                Log.d("NutriScalpApp", "Seeded user: $userEmail")
+            )
+
+            demoUsers.forEach { user ->
+                if (!userRepository.userExists(user.email)) {
+                    userRepository.insertUser(user)
+                    Log.d("NutriScalpApp", "Seeded user: ${user.email}")
+                }
             }
         }
     }
+
 
     fun loginUser(email: String, passwordHash: String, onLoginSuccess: () -> Unit, onLoginFailure: () -> Unit) {
         viewModelScope.launch {
