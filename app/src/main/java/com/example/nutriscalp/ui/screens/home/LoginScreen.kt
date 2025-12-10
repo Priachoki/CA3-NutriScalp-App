@@ -127,37 +127,47 @@ fun LoginScreen(appViewModel: AppViewModel, onLoginSuccess: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
-    // Note: The actual ViewModel instantiation is handled in MainActivity.kt
-    // The theme must be passed the ViewModel to correctly render the theme color in the preview
-    NutriScalpTheme(
-        appViewModel = AppViewModel(
-            foodService = com.example.nutriscalp.data.FoodService.instance,
-            dataStoreManager = com.example.nutriscalp.data.DataStoreManager(null),
-            mealRepository = com.example.nutriscalp.data.MealRepository(object : com.example.nutriscalp.room.MealDao {
-                override suspend fun insertMeal(meal: com.example.nutriscalp.room.MealEntity) {}
-                override fun getAllMeals(): kotlinx.coroutines.flow.Flow<List<com.example.nutriscalp.room.MealEntity>> = kotlinx.coroutines.flow.flowOf(emptyList())
-            }),
-            userRepository = com.example.nutriscalp.data.UserRepository(object : com.example.nutriscalp.room.UserDao {
-                override suspend fun insertUser(user: com.example.nutriscalp.room.UserEntity): Long = 0L
-                override suspend fun getUserByCredentials(email: String, passwordHash: String): com.example.nutriscalp.room.UserEntity? = null
-                override suspend fun countUserByEmail(email: String): Int = 0
-            })
-        )
-    ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    // Mock MealDao
+    val mockMealDao = object : com.example.nutriscalp.room.MealDao {
+        override suspend fun insertMeal(meal: com.example.nutriscalp.room.MealEntity) {}
+        override fun getAllMeals() =
+            kotlinx.coroutines.flow.flowOf(emptyList<com.example.nutriscalp.room.MealEntity>())
+    }
+
+    // Mock UserDao
+    val mockUserDao = object : com.example.nutriscalp.room.UserDao {
+        override suspend fun insertUser(user: com.example.nutriscalp.room.UserEntity) = 0L
+        override suspend fun getUserByCredentials(email: String, passwordHash: String) = null
+        override suspend fun countUserByEmail(email: String) = 0
+        override suspend fun updateUser(user: com.example.nutriscalp.room.UserEntity) {}
+        override suspend fun getUserById(userId: Int) = null
+    }
+
+    // Factory used ONLY for preview
+    val previewFactory = object : androidx.lifecycle.ViewModelProvider.Factory {
+        override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(AppViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return AppViewModel(
+                    foodService = com.example.nutriscalp.data.FoodService.instance,
+                    dataStoreManager = com.example.nutriscalp.data.DataStoreManager(context),
+                    mealRepository = com.example.nutriscalp.data.MealRepository(mockMealDao),
+                    userRepository = com.example.nutriscalp.data.UserRepository(mockUserDao)
+                ) as T
+            }
+            throw IllegalArgumentException("Unknown VM class")
+        }
+    }
+
+    val mockViewModel: AppViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+        factory = previewFactory
+    )
+
+    NutriScalpTheme(appViewModel = mockViewModel) {
         LoginScreen(
-            appViewModel = AppViewModel(
-                foodService = com.example.nutriscalp.data.FoodService.instance,
-                dataStoreManager = com.example.nutriscalp.data.DataStoreManager(null),
-                mealRepository = com.example.nutriscalp.data.MealRepository(object : com.example.nutriscalp.room.MealDao {
-                    override suspend fun insertMeal(meal: com.example.nutriscalp.room.MealEntity) {}
-                    override fun getAllMeals(): kotlinx.coroutines.flow.Flow<List<com.example.nutriscalp.room.MealEntity>> = kotlinx.coroutines.flow.flowOf(emptyList())
-                }),
-                userRepository = com.example.nutriscalp.data.UserRepository(object : com.example.nutriscalp.room.UserDao {
-                    override suspend fun insertUser(user: com.example.nutriscalp.room.UserEntity): Long = 0L
-                    override suspend fun getUserByCredentials(email: String, passwordHash: String): com.example.nutriscalp.room.UserEntity? = null
-                    override suspend fun countUserByEmail(email: String): Int = 0
-                })
-            ),
+            appViewModel = mockViewModel,
             onLoginSuccess = {}
         )
     }

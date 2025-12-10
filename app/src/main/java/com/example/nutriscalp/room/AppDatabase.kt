@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 // 💡 UPDATE: Add UserEntity and increment version
-@Database(entities = [MealEntity::class, UserEntity::class], version = 2, exportSchema = false)
+@Database(entities = [MealEntity::class, UserEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun mealDao(): MealDao

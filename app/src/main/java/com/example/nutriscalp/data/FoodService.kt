@@ -25,10 +25,10 @@ class FoodService private constructor() {
 
     // Mock Data
     private val mockFoodList = listOf(
-        Food(1, "Spinach", "https://i.imgur.com/example_spinach.png", "Rich in iron and folate, essential for hair growth.", "Promotes hair follicle health and circulation."),
-        Food(2, "Salmon", "https://i.imgur.com/example_salmon.png", "High in Omega-3 fatty acids.", "Reduces scalp inflammation and dryness."),
-        Food(3, "Avocado", "https://i.imgur.com/example_avocado.png", "A good source of Vitamin E.", "Protects scalp skin from oxidative damage."),
-        Food(4, "Sweet Potatoes", "https://i.imgur.com/example_potato.png", "Packed with Beta-Carotene.", "Aids in the production of sebum, a natural scalp oil.")
+        Food(1, "Spinach", "https://www.pinterest.com/pin/6825836929827259/", "Rich in iron and folate, essential for hair growth.", "Promotes hair follicle health and circulation.", category = "Dryness"),
+        Food(2, "Salmon", "https://i.imgur.com/example_salmon.png", "High in Omega-3 fatty acids.", "Reduces scalp inflammation and dryness.", category = "Inflammation"),
+        Food(3, "Avocado", "https://i.imgur.com/example_avocado.png", "A good source of Vitamin E.", "Protects scalp skin from oxidative damage.",category = "Oiliness"),
+        Food(4, "Sweet Potatoes", "https://i.imgur.com/example_potato.png", "Packed with Beta-Carotene.", "Aids in the production of sebum, a natural scalp oil.", category = "Dryness")
     )
 
     suspend fun getFoods(): List<Food> {

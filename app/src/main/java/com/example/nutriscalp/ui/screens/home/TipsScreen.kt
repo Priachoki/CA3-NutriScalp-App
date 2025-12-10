@@ -29,7 +29,7 @@ import kotlinx.coroutines.delay
 // Data structure for tips (Mock data)
 data class ScalpTip(
     val title: String,
-    val subtitle: String,
+    val subtitle: String,  
     val imageResId: Int, // 💡 CHANGED to Int for local resource ID
     val delayMs: Long, // For staggered animation
     val conditionTag: String // 💡 NEW: Tag for filtering

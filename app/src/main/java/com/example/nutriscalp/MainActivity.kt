@@ -174,10 +174,22 @@ private val MockMealDao = object : MealDao {
 }
 
 private val MockUserDao = object : UserDao {
+
     override suspend fun insertUser(user: UserEntity): Long = 0L
-    override suspend fun getUserByCredentials(email: String, passwordHash: String): UserEntity? = null
+
+    override suspend fun getUserByCredentials(
+        email: String,
+        passwordHash: String
+    ): UserEntity? = null
+
     override suspend fun countUserByEmail(email: String): Int = 0
+
+    override suspend fun updateUser(user: UserEntity) { /* no-op */ }
+
+    override suspend fun getUserById(userId: Int): UserEntity? = null
 }
+
+
 
 private val MockMealRepository = MealRepository(MockMealDao)
 private val MockUserRepository = UserRepository(MockUserDao)

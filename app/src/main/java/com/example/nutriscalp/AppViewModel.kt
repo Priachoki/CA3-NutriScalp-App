@@ -38,6 +38,7 @@ class AppViewModel(
     private val _scalpScore = MutableStateFlow(ScalpScore())
     val scalpScore: StateFlow<ScalpScore> = _scalpScore.asStateFlow()
 
+    private var currentUser: UserEntity? = null
     private val _foods = MutableStateFlow<List<Food>>(emptyList())
     val foods: StateFlow<List<Food>> = _foods.asStateFlow()
 
@@ -110,7 +111,11 @@ class AppViewModel(
                 val dummyUser = UserEntity(
                     email = userEmail,
                     passwordHash = "password_hash_1234",
-                    fullName = "NutriScalp Tester"
+                    fullName = "NutriScalp Tester",
+
+                    dryness = 70,
+                    oiliness =20,
+                    inflammation = 1
                 )
                 userRepository.insertUser(dummyUser)
                 Log.d("NutriScalpApp", "Seeded user: $userEmail")
@@ -122,6 +127,9 @@ class AppViewModel(
         viewModelScope.launch {
             val user = userRepository.getUserByCredentials(email, passwordHash)
             if (user != null) {
+                currentUser = user
+                loadUserScalpData(user)
+
                 _isUserLoggedIn.value = true
                 onLoginSuccess()
                 Log.i("NutriScalpApp", "User logged in: ${user.email}")
@@ -133,6 +141,18 @@ class AppViewModel(
         }
     }
 
+    private fun loadUserScalpData(user: UserEntity){
+        _scalpScore.value = ScalpScore(
+           dryness = "${user.dryness}%",
+            oiliness = "${user.oiliness}%",
+            inflammation = when (user.inflammation){
+                2 -> "High"
+                1 -> "Medium"
+                else -> "Low"
+            }
+        )
+        Log.d("NutriScalpApp", "Loaded scalp profile for ${user.email}")
+    }
     // Getting Data from Internet (mocked)
     private fun fetchFoods() {
         viewModelScope.launch {

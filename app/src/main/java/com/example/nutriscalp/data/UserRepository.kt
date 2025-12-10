@@ -16,4 +16,12 @@ class UserRepository(private val dao: UserDao) {
     suspend fun userExists(email: String): Boolean {
         return dao.countUserByEmail(email) > 0
     }
+
+    suspend fun updateUser(user: UserEntity){
+        dao.updateUser(user)
+    }
+
+    suspend fun getUserById(id: Int): UserEntity? {
+        return dao.getUserById(id)
+    }
 }

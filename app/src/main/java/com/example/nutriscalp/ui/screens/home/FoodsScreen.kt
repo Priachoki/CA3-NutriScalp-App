@@ -33,6 +33,28 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDeta
 
     // Retrofit: Collect food data fetched via ViewModel
     val foods by appViewModel.foods.collectAsState()
+    val scalp by appViewModel.scalpScore.collectAsState()
+
+    val recommendedFoods = foods.filter { food ->
+        val drynessValue = scalp.dryness.removeSuffix("%").toInt()
+        val oilinessValue = scalp.oiliness.removeSuffix("%").toInt()
+        val inflamValue = scalp.inflammation
+
+        when {
+            drynessValue > 50 && food.category == "Dryness" -> true
+            oilinessValue > 50 && food.category == "Oiliness" -> true
+            inflamValue == "High" && food.category == "Inflammation" -> true
+            else -> false
+        }
+    }
+
+    val displayFoods = if (recommendedFoods.isNotEmpty()) {
+        recommendedFoods
+    } else {
+        foods // show everything if nothing matches
+    }
+
+
 
     Scaffold(
         topBar = {
@@ -67,7 +89,7 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDeta
                     contentPadding = PaddingValues(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(foods) { food ->
+                    items(displayFoods) { food ->
                         FoodCard(food = food, onNavigateToDetail = onNavigateToDetail) // 💡 MODIFIED: Pass navigation lambda
                     }
                 }

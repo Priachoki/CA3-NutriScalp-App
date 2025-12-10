@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,4 +21,9 @@ interface UserDao {
     // Utility to check if a user already exists (for seeding/registration)
     @Query("SELECT COUNT(id) FROM users WHERE email = :email")
     suspend fun countUserByEmail(email: String): Int
-}
+
+    @Update
+    suspend fun updateUser(user: UserEntity)
+
+    @Query("SELECT * FROM users WHERE id = :userId LIMIT 1")
+    suspend fun getUserById(userId: Int): UserEntity?}
