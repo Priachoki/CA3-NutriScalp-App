@@ -5,7 +5,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Fastfood
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material.icons.filled.Today
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.nutriscalp.data.DataStoreManager
@@ -20,6 +32,8 @@ import com.example.nutriscalp.data.FoodService
 import com.example.nutriscalp.data.MealRepository
 import com.example.nutriscalp.data.UserRepository
 import com.example.nutriscalp.room.AppDatabase
+import com.example.nutriscalp.ui.components.BottomNavigationBar
+import com.example.nutriscalp.ui.components.BottomNavItem
 import com.example.nutriscalp.ui.screens.DietLogScreen
 import com.example.nutriscalp.ui.screens.FoodsScreen
 import com.example.nutriscalp.ui.screens.SettingsScreen
@@ -74,97 +88,147 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NutriScalpApp(appViewModel: AppViewModel) {
     val navController = rememberNavController()
-    // Navigation between Screens
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    // Define bottom navigation items (using the same icons as your quick access)
+    val bottomNavItems = listOf(
+        BottomNavItem(
+            route = AppDestinations.HOME_ROUTE,
+            icon = Icons.Default.Home,
+            label = "Home"
+        ),
+        BottomNavItem(
+            route = AppDestinations.FOODS_ROUTE,
+            icon = Icons.Default.Fastfood,
+            label = "Foods"
+        ),
+        BottomNavItem(
+            route = AppDestinations.DIET_LOG_ROUTE,
+            icon = Icons.Default.Today,
+            label = "Log"
+        ),
+        BottomNavItem(
+            route = AppDestinations.MEAL_HISTORY_ROUTE,
+            icon = Icons.Default.ListAlt,
+            label = "History"
+        ),
+        BottomNavItem(
+            route = AppDestinations.TIPS_ROUTE,
+            icon = Icons.Default.Lightbulb,
+            label = "Tips"
+        )
+    )
+
+    // Define which screens should show bottom navigation
+    val shouldShowBottomNav = currentDestination?.route in bottomNavItems.map { it.route }
+
     NutriScalpTheme(appViewModel = appViewModel) {
-        NavHost(
-            navController = navController,
-            startDestination = AppDestinations.SPLASH_ROUTE
-        ) {
-            // SPLASH SCREEN (Animation) -> LOGIN
-            composable(AppDestinations.SPLASH_ROUTE) {
-                SplashScreen(onNavigateToHome = {
-                    navController.popBackStack()
-                    navController.navigate(AppDestinations.LOGIN_ROUTE)
-                })
+        Scaffold(
+            bottomBar = {
+                if (shouldShowBottomNav) {
+                    BottomNavigationBar(
+                        navController = navController,
+                        currentDestination = currentDestination,
+                        items = bottomNavItems
+                    )
+                }
             }
-
-            // LOGIN SCREEN -> HOME
-            composable(AppDestinations.LOGIN_ROUTE) {
-                LoginScreen(
-                    appViewModel = appViewModel,
-                    onLoginSuccess = {
-                        // Navigate to HOME and clear all previous screens (Splash/Login)
-                        navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
-                        navController.navigate(AppDestinations.HOME_ROUTE)
-                    }
-                )
-            }
-
-            // HOME SCREEN (Main Content)
-            composable(AppDestinations.HOME_ROUTE) {
-                HomeScreen(
-                    appViewModel = appViewModel,
-                    onNavigate = { route -> navController.navigate(route) }
-                )
-            }
-
-            // FOODS SCREEN
-            composable(AppDestinations.FOODS_ROUTE) {
-                FoodsScreen(
-                    appViewModel = appViewModel,
-                    onBack = { navController.popBackStack() },
-                    // 💡 NEW NAVIGATION for Food Detail
-                    onNavigateToDetail = { foodId ->
-                        navController.navigate("${AppDestinations.FOOD_DETAIL_BASE_ROUTE}/$foodId")
-                    }
-                )
-            }
-
-            // FOOD DETAIL SCREEN 💡 NEW ROUTE WITH ARGUMENT
-            composable(
-                route = AppDestinations.FOOD_DETAIL_ROUTE,
-                arguments = listOf(navArgument("foodId") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val foodId = backStackEntry.arguments?.getInt("foodId")
-                FoodDetailScreen(
-                    appViewModel = appViewModel,
-                    foodId = foodId,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-
-            // DIET LOG SCREEN (New Feature)
-            composable(AppDestinations.DIET_LOG_ROUTE) {
-                DietLogScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() }) // 💡 MODIFIED
-            }
-
-            // MEAL HISTORY SCREEN 💡 NEW ROUTE
-            composable(AppDestinations.MEAL_HISTORY_ROUTE) {
-                MealHistoryScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
-            }
-
-
-            // TIPS SCREEN (Animation)
-            composable(AppDestinations.TIPS_ROUTE) {
-                TipsScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
-            }
-
-            // SETTINGS SCREEN (DataStore)
-            composable(AppDestinations.SETTINGS_ROUTE) {
-                SettingsScreen(
-                    appViewModel = appViewModel,
-                    onBack = { navController.popBackStack() },
-                    // 💡 NEW LOGOUT LOGIC: Clear back stack and navigate to LOGIN
-                    onLogout = {
-                        navController.popBackStack(route = AppDestinations.HOME_ROUTE, inclusive = true)
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = AppDestinations.SPLASH_ROUTE,
+                modifier = Modifier.padding(paddingValues)
+            ) {
+                // SPLASH SCREEN (Animation) -> LOGIN
+                composable(AppDestinations.SPLASH_ROUTE) {
+                    SplashScreen(onNavigateToHome = {
+                        navController.popBackStack()
                         navController.navigate(AppDestinations.LOGIN_ROUTE)
-                    }
-                )
+                    })
+                }
+
+                // LOGIN SCREEN -> HOME
+                composable(AppDestinations.LOGIN_ROUTE) {
+                    LoginScreen(
+                        appViewModel = appViewModel,
+                        onLoginSuccess = {
+                            // Navigate to HOME and clear all previous screens (Splash/Login)
+                            navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
+                            navController.navigate(AppDestinations.HOME_ROUTE)
+                        }
+                    )
+                }
+
+                // HOME SCREEN (Main Content)
+                composable(AppDestinations.HOME_ROUTE) {
+                    HomeScreen(
+                        appViewModel = appViewModel,
+                        onNavigate = { route ->
+                            // Handle navigation to non-bottom-nav screens
+                            if (route == AppDestinations.SETTINGS_ROUTE) {
+                                navController.navigate(route)
+                            }
+                        }
+                    )
+                }
+
+                // FOODS SCREEN
+                composable(AppDestinations.FOODS_ROUTE) {
+                    FoodsScreen(
+                        appViewModel = appViewModel,
+                        onBack = { navController.popBackStack() },
+                        // 💡 NEW NAVIGATION for Food Detail
+                        onNavigateToDetail = { foodId ->
+                            navController.navigate("${AppDestinations.FOOD_DETAIL_BASE_ROUTE}/$foodId")
+                        }
+                    )
+                }
+
+                // FOOD DETAIL SCREEN 💡 NEW ROUTE WITH ARGUMENT
+                composable(
+                    route = AppDestinations.FOOD_DETAIL_ROUTE,
+                    arguments = listOf(navArgument("foodId") { type = NavType.IntType })
+                ) { backStackEntry ->
+                    val foodId = backStackEntry.arguments?.getInt("foodId")
+                    FoodDetailScreen(
+                        appViewModel = appViewModel,
+                        foodId = foodId,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                // DIET LOG SCREEN (New Feature)
+                composable(AppDestinations.DIET_LOG_ROUTE) {
+                    DietLogScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
+                }
+
+                // MEAL HISTORY SCREEN 💡 NEW ROUTE
+                composable(AppDestinations.MEAL_HISTORY_ROUTE) {
+                    MealHistoryScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
+                }
+
+                // TIPS SCREEN (Animation)
+                composable(AppDestinations.TIPS_ROUTE) {
+                    TipsScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
+                }
+
+                // SETTINGS SCREEN (DataStore)
+                composable(AppDestinations.SETTINGS_ROUTE) {
+                    SettingsScreen(
+                        appViewModel = appViewModel,
+                        onBack = { navController.popBackStack() },
+                        // 💡 NEW LOGOUT LOGIC: Clear back stack and navigate to LOGIN
+                        onLogout = {
+                            navController.popBackStack(route = AppDestinations.HOME_ROUTE, inclusive = true)
+                            navController.navigate(AppDestinations.LOGIN_ROUTE)
+                        }
+                    )
+                }
             }
         }
     }
 }
-
 
 // 🚨 NEW MOCK IMPLEMENTATIONS FOR PREVIEW FACTORY
 private val MockMealDao = object : MealDao {
@@ -189,11 +253,8 @@ private val MockUserDao = object : UserDao {
     override suspend fun getUserById(userId: Int): UserEntity? = null
 }
 
-
-
 private val MockMealRepository = MealRepository(MockMealDao)
 private val MockUserRepository = UserRepository(MockUserDao)
-
 
 // Mock Factory for Preview (Cleaned and stable)
 private val MockAppViewModelFactory = object : ViewModelProvider.Factory {

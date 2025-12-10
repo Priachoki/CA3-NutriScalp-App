@@ -1,17 +1,15 @@
 package com.example.nutriscalp.ui.screens.home
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,50 +18,103 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.example.nutriscalp.AppDestinations
 import com.example.nutriscalp.AppViewModel
 import com.example.nutriscalp.R
+import com.example.nutriscalp.ScalpScore
 import com.example.nutriscalp.ui.theme.AccentPrimary
 import com.example.nutriscalp.ui.theme.AccentSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
-    val scalpScore by appViewModel.scalpScore.collectAsState()
-    val todayCalories by appViewModel.todayCalories.collectAsState(initial = 0) // 💡 NEW: Collect today's calories
+    // Collect state using the correctly imported ScalpScore type
+    val scalpScore by appViewModel.scalpScore.collectAsState(initial = ScalpScore())
+    val todayCalories by appViewModel.todayCalories.collectAsState(initial = 0)
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { NutriScalpImageLogo() },
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Logo + User greeting on the left
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(start = 4.dp)
+                        ) {
+                            // BIGGER logo (increased from 32dp to 48dp)
+                            Image(
+                                painter = painterResource(id = R.drawable.nutriscalp_logo),
+                                contentDescription = "App Logo",
+                                modifier = Modifier
+                                    .size(48.dp)  // Increased size
+                                    .padding(end = 12.dp)  // Increased padding
+                            )
+                            Column {
+                                Text(
+                                    "Hello, Vanessa",
+                                    fontSize = 18.sp,  // Slightly bigger text
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    "Welcome back!",
+                                    fontSize = 14.sp,  // Slightly bigger text
+                                    color = MaterialTheme.colorScheme.outline
+                                )
+                            }
+                        }
+
+                        // Settings icon on the right (also made slightly bigger)
+                        IconButton(
+                            onClick = { onNavigate(AppDestinations.SETTINGS_ROUTE) },
+                            modifier = Modifier
+                                .size(52.dp)  // Increased size
+                                .padding(end = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = AccentPrimary,
+                                modifier = Modifier.size(32.dp)  // Increased size
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                ),
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .padding(top = 4.dp)
             )
         }
     ) { padding ->
 
-         Column(
+        Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .padding(horizontal = 20.dp)
-                .padding(bottom = 80.dp)
+                .padding(bottom = 20.dp)
                 .fillMaxSize()
         ) {
-            // ===== WELCOME HEADER =====
-            UserHeader(userName = "Vanessa")
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // ===== SCORE CARD (UPDATED WITH CALORIE STAT) =====
+            // ===== SCORE CARD (DASHBOARD) =====
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,180 +124,319 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(24.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "Today's Health Summary", // 💡 MODIFIED TITLE
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AccentSecondary,
-                            modifier = Modifier.weight(1f)
-                        )
-                        // Logo Icon in the Score Card
-                        Icon(
-                            painter = painterResource(id = R.drawable.nutriscalp_logo),
-                            contentDescription = "Scalp Health Icon",
-                            tint = AccentPrimary,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text("Calories Logged: $todayCalories kcal", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) // 💡 NEW DATA
-                    Text("Dryness: ${scalpScore.dryness}", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
-                    Text("Oiliness: ${scalpScore.oiliness}", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
-                    Text("Inflammation: ${scalpScore.inflammation}", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
-
-                    // 💡 Simple Visualization Placeholder
-                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Meal History Trend (Mock Chart)",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        "Today's Health Summary",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AccentPrimary,
                     )
-                    // You would place a custom drawing Canvas or charting library component here
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(AccentSecondary.copy(alpha = 0.1f))
-                        .padding(8.dp)
-                    ) {
-                        Text("Chart placeholder - Visualize 7-day calorie trend here.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 1. SCALP METRICS DISPLAY
+                    ScalpMetricsDisplay(scalpScore = scalpScore)
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 2. DAILY CALORIE STAT
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Fastfood, contentDescription = "Calories", tint = AccentSecondary)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "Calories Logged Today:",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "$todayCalories kcal",
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                            color = AccentPrimary
+                        )
                     }
+
+                    // 3. REAL CHART - 7-Day Calorie Trend
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        "7-Day Calorie Trend",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Real chart visualization using Row layout
+                    WeekCalorieChart()
                 }
             }
 
-            Text(
-                text = "Quick Access",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            // ===== WEEKLY SUMMARY CARD =====
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(modifier = Modifier.padding(24.dp)) {
+                    Text(
+                        "Weekly Nutrition Summary",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AccentPrimary,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(20.dp))
+                    // Stats row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        StatItem("Avg Daily", "1,850", "kcal")
+                        StatItem("Highest Day", "2,340", "kcal")
+                        StatItem("Total Week", "12,950", "kcal")
+                    }
 
-            // QUICK BUTTONS
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                QuickButton(
-                    title = "Foods",
-                    icon = Icons.Default.Fastfood,
-                    onClick = { onNavigate(AppDestinations.FOODS_ROUTE) }
-                )
-                QuickButton(
-                    title = "Diet Log",
-                    icon = Icons.Default.ListAlt,
-                    onClick = { onNavigate(AppDestinations.DIET_LOG_ROUTE) }
-                )
-            }
+                    Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(20.dp))
+                    // Progress indicators
+                    Text(
+                        "Daily Goal Progress",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                QuickButton(
-                    title = "Tips",
-                    icon = Icons.Default.Lightbulb,
-                    onClick = { onNavigate(AppDestinations.TIPS_ROUTE) }
-                )
-                // 💡 ADDED MEAL HISTORY BUTTON
-                QuickButton(
-                    title = "History",
-                    icon = Icons.Default.ListAlt,
-                    onClick = { onNavigate(AppDestinations.MEAL_HISTORY_ROUTE) }
-                )
-            }
-            Spacer(modifier = Modifier.height(20.dp))
+                    // Protein progress
+                    ProgressRow("Protein", 65, AccentPrimary)
+                    Spacer(modifier = Modifier.height(4.dp))
 
-            // Replaced old Diet Log Quick Button for Settings
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-                QuickButton(
-                    title = "Settings",
-                    icon = Icons.Default.Settings,
-                    onClick = { onNavigate(AppDestinations.SETTINGS_ROUTE) }
-                )
+                    // Carbs progress
+                    ProgressRow("Carbs", 85, AccentSecondary)
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Fat progress
+                    ProgressRow("Fat", 45, MaterialTheme.colorScheme.error)
+                }
             }
         }
     }
 }
 
-// ... UserHeader, NutriScalpImageLogo, QuickButton remain the same ...
-// Omitting these functions for brevity, assume they are included in the file.
+// Helper Composable for the prominent Scalp Metrics
 @Composable
-fun UserHeader(userName: String) {
+fun ScalpMetricsDisplay(scalpScore: ScalpScore) {
     Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        MetricItem("Dryness", scalpScore.dryness, MaterialTheme.colorScheme.error)
+        MetricItem("Oiliness", scalpScore.oiliness, AccentSecondary)
+        MetricItem("Inflammation", scalpScore.inflammation, AccentPrimary)
+    }
+}
+
+@Composable
+fun MetricItem(label: String, value: String, valueColor: Color, modifier: Modifier = Modifier) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .width(IntrinsicSize.Min)
+    ) {
+        Text(
+            text = value,
+            fontSize = 30.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = valueColor
+        )
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+// Real chart implementation using Row layout instead of Canvas text
+@Composable
+fun WeekCalorieChart() {
+    // Sample data for last 7 days
+    val weekData = listOf(
+        Pair("Mon", 1850),
+        Pair("Tue", 2200),
+        Pair("Wed", 1950),
+        Pair("Thu", 2340),
+        Pair("Fri", 2100),
+        Pair("Sat", 1800),
+        Pair("Sun", 1600)
+    )
+
+    val maxCalories = weekData.maxOf { it.second }
+    val chartHeight = 180.dp
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .height(chartHeight)
+            .clip(RoundedCornerShape(8.dp))
+            .background(AccentSecondary.copy(alpha = 0.05f))
+            .padding(vertical = 16.dp, horizontal = 8.dp)
     ) {
-        Column {
-            Text(
-                "Hello, $userName",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Text(
-                "Your wellness journey starts here",
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
-        // Placeholder Profile Image (Using the NutriScalp theme colors)
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(AccentSecondary.copy(alpha = 0.5f))
-                .clickable { /* TBD: Go to profile */ },
-            contentAlignment = Alignment.Center
+        // Y-axis labels on the left
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom
         ) {
-            Text(userName.first().toString(), fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
+            // Y-axis labels
+            Column(
+                modifier = Modifier
+                    .width(30.dp)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("2.4k", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("1.8k", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("1.2k", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("0.6k", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("0", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            // Chart area
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                // Grid lines
+                Canvas(
+                    modifier = Modifier.matchParentSize()
+                ) {
+                    // Draw horizontal grid lines
+                    val lineCount = 5
+                    for (i in 0 until lineCount) {
+                        val y = size.height * (i.toFloat() / (lineCount - 1))
+                        drawLine(
+                            color = Color.Gray.copy(alpha = 0.1f),
+                            start = Offset(0f, y),
+                            end = Offset(size.width, y),
+                            strokeWidth = 1f
+                        )
+                    }
+                }
+
+                // Bars
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = 8.dp, end = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    weekData.forEach { (day, calories) ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Bottom,
+                            modifier = Modifier.width(28.dp)
+                        ) {
+                            // Calorie value above bar
+                            Text(
+                                text = calories.toString(),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = AccentPrimary,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+
+                            // Bar
+                            val barHeight = (calories.toFloat() / maxCalories) * 120.dp
+                            Box(
+                                modifier = Modifier
+                                    .width(20.dp)
+                                    .height(barHeight)
+                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                AccentPrimary.copy(alpha = 0.8f),
+                                                AccentPrimary.copy(alpha = 0.3f)
+                                            )
+                                        )
+                                    )
+                                    .border(
+                                        width = 1.dp,
+                                        color = AccentPrimary.copy(alpha = 0.9f),
+                                        shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
+                                    )
+                            )
+
+                            // Day label
+                            Text(
+                                text = day,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
-
 @Composable
-fun NutriScalpImageLogo() {
-    Image(
-        painter = painterResource(id = R.drawable.nutriscalp_logo),
-        contentDescription = "NutriScalp Logo",
-        modifier = Modifier
-            .height(90.dp)
-            .padding(top = 6.dp)
-    )
+fun StatItem(label: String, value: String, unit: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(80.dp)
+    ) {
+        Text(
+            text = value,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = AccentPrimary
+        )
+        Text(
+            text = unit,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 @Composable
-fun QuickButton(title: String, icon: ImageVector, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .size(width = 150.dp, height = 100.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.SpaceBetween
+fun ProgressRow(label: String, percentage: Int, color: Color) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = AccentPrimary,
-                modifier = Modifier.size(24.dp)
-            )
             Text(
-                text = title,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            Text(
+                text = "$percentage%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = color
+            )
         }
+        Spacer(modifier = Modifier.height(4.dp))
+        LinearProgressIndicator(
+            progress = percentage / 100f,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .clip(RoundedCornerShape(4.dp)),
+            color = color,
+            trackColor = color.copy(alpha = 0.2f)
+        )
     }
 }
