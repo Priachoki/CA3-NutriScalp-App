@@ -137,27 +137,36 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
         ) { paddingValues ->
             NavHost(
                 navController = navController,
-                startDestination = AppDestinations.SPLASH_ROUTE,
+                startDestination = AppDestinations.SPLASH_ROUTE, // Start with initial Splash
                 modifier = Modifier.padding(paddingValues)
             ) {
-                // SPLASH SCREEN (Animation) -> LOGIN
+                // INITIAL SPLASH SCREEN (App launch) -> LOGIN
                 composable(AppDestinations.SPLASH_ROUTE) {
                     SplashScreen(onNavigateToHome = {
+                        // After initial splash, go to Login
                         navController.popBackStack()
                         navController.navigate(AppDestinations.LOGIN_ROUTE)
                     })
                 }
 
-                // LOGIN SCREEN -> HOME
+                // LOGIN SCREEN -> POST-LOGIN SPLASH -> HOME
                 composable(AppDestinations.LOGIN_ROUTE) {
                     LoginScreen(
                         appViewModel = appViewModel,
                         onLoginSuccess = {
-                            // Navigate to HOME and clear all previous screens (Splash/Login)
-                            navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
-                            navController.navigate(AppDestinations.HOME_ROUTE)
+                            // After successful login, navigate to Post-Login Splash
+                            navController.navigate(AppDestinations.POST_LOGIN_SPLASH_ROUTE)
                         }
                     )
+                }
+
+                // POST-LOGIN SPLASH SCREEN -> HOME
+                composable(AppDestinations.POST_LOGIN_SPLASH_ROUTE) {
+                    SplashScreen(onNavigateToHome = {
+                        // After post-login splash, go to Home and clear back stack
+                        navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
+                        navController.navigate(AppDestinations.HOME_ROUTE)
+                    })
                 }
 
                 // HOME SCREEN (Main Content)
