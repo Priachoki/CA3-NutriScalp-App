@@ -229,7 +229,7 @@ class AppViewModel(
         }
     }
 
-    // 💡 MODIFIED: Meal save is now exposed to the UI
+    // MODIFIED: Meal save is now exposed to the UI
     fun saveMeal(mealName: String, calories: Int, notes: String) {
         viewModelScope.launch {
             val meal = MealEntity(

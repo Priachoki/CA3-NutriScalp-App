@@ -47,7 +47,7 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDeta
     if (oilinessValue > 50) userConditions.add("Oiliness")
     if (inflamValue == "High") userConditions.add("Inflammation")
 
-    // filter foods that match ANY of the user conditions
+    // filter foods that match ANY of the user condition
     val recommendedFoods = foods.filter { food ->
         userConditions.any { condition ->
             food.category.contains(condition, ignoreCase = true)
