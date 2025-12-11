@@ -90,13 +90,12 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDeta
                     CircularProgressIndicator(color = AccentPrimary)
                 }
             } else {
-                // Lazy List with Card UI components
                 LazyColumn(
                     contentPadding = PaddingValues(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(displayFoods) { food ->
-                        FoodCard(food = food, onNavigateToDetail = onNavigateToDetail) // 💡 MODIFIED: Pass navigation lambda
+                        FoodCard(food = food, onNavigateToDetail = onNavigateToDetail)
                     }
                 }
             }
@@ -104,20 +103,18 @@ fun FoodsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onNavigateToDeta
     }
 }
 
-// Food Card with "Large Image, Magazine-style" professional styling
 @Composable
-fun FoodCard(food: Food, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: Added onNavigateToDetail
+fun FoodCard(food: Food, onNavigateToDetail: (Int) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp), // Soft edges
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(4.dp) // Stronger elevation for big card
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        // 庁 MODIFIED: Changed from Row to Column to stack image and text
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onNavigateToDetail(food.id) } // 💡 FIXED: Navigate to detail
+                .clickable { onNavigateToDetail(food.id) }
         ) {
             Image(
                 painter = painterResource(id = food.imageRes),
@@ -133,7 +130,7 @@ fun FoodCard(food: Food, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp), // Padding applied to the text area
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -142,19 +139,18 @@ fun FoodCard(food: Food, onNavigateToDetail: (Int) -> Unit) { // 💡 MODIFIED: 
                 ) {
                     Text(
                         food.name,
-                        fontSize = 20.sp, // Slightly larger title
-                        color = MaterialTheme.colorScheme.onSurface, // 💡 FIXED: Uses dynamic text color for cards
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         "Benefit: ${food.scalpBenefit}",
                         fontSize = 14.sp,
-                        color = AccentPrimary, // AccentPrimary does not change for this look
+                        color = AccentPrimary,
                         fontWeight = FontWeight.Medium
                     )
                 }
-                // Detail Arrow icon (kept small)
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = "Details",

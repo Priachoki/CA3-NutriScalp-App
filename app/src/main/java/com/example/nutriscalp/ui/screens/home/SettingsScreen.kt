@@ -24,8 +24,7 @@ import com.example.nutriscalp.ui.theme.AccentPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () -> Unit) { // 💡 MODIFIED PARAMETER
-    // Use DataStore: Collect the preference from the ViewModel
+fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () -> Unit) {
     val isDarkModeEnabled by appViewModel.isDarkMode.collectAsState()
 
     Scaffold(
@@ -63,7 +62,6 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () 
                 )
             }
 
-            // 1. Dark Mode Toggle (DataStore Implementation)
             item {
                 SettingsToggleItem(
                     icon = Icons.Default.DarkMode,
@@ -85,7 +83,6 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () 
                 )
             }
 
-            // 2. Sync Button (Demonstration of second interaction)
             item {
                 SettingsClickableItem(
                     icon = Icons.Default.Sync,
@@ -95,7 +92,6 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () 
                 )
             }
 
-            // 💡 NEW SECTION: Account Management
             item {
                 Spacer(Modifier.height(16.dp))
                 Text(
@@ -107,7 +103,6 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () 
                 )
             }
 
-            // 💡 NEW ITEM: Logout Button
             item {
                 SettingsClickableItem(
                     icon = Icons.Default.Logout,
@@ -120,7 +115,6 @@ fun SettingsScreen(appViewModel: AppViewModel, onBack: () -> Unit, onLogout: () 
     }
 }
 
-// Reusable composable for a clean settings item with a toggle
 @Composable
 fun SettingsToggleItem(
     icon: ImageVector,
@@ -157,7 +151,6 @@ fun SettingsToggleItem(
     }
 }
 
-// Reusable composable for a clean settings item with a click action
 @Composable
 fun SettingsClickableItem(
     icon: ImageVector,

@@ -43,17 +43,15 @@ import com.example.nutriscalp.ui.screens.SplashScreen
 import com.example.nutriscalp.ui.screens.home.HomeScreen
 import com.example.nutriscalp.ui.theme.NutriScalpTheme
 import kotlinx.coroutines.flow.flowOf
-// 🚨 NEW IMPORTS FOR MOCKING
 import com.example.nutriscalp.room.MealDao
 import com.example.nutriscalp.room.MealEntity
 import com.example.nutriscalp.room.UserDao
 import com.example.nutriscalp.room.UserEntity
-import com.example.nutriscalp.ui.screens.FoodDetailScreen // 💡 NEW IMPORT
-import com.example.nutriscalp.ui.screens.MealHistoryScreen // 💡 NEW IMPORT
+import com.example.nutriscalp.ui.screens.FoodDetailScreen
+import com.example.nutriscalp.ui.screens.MealHistoryScreen
 import kotlinx.coroutines.flow.Flow
 
 
-// Initialization of DataStoreManager outside of a composable to be reused
 private lateinit var dataStoreManager: DataStoreManager
 
 class MainActivity : ComponentActivity() {
@@ -64,12 +62,11 @@ class MainActivity : ComponentActivity() {
         dataStoreManager = DataStoreManager(applicationContext)
 
         setContent {
-            // Architecture Components: ViewModel instantiation
 
             val database = AppDatabase.getDatabase(applicationContext)
 
             val mealRepository = MealRepository(database.mealDao())
-            val userRepository = UserRepository(database.userDao()) // Added from last step
+            val userRepository = UserRepository(database.userDao())
 
             val appViewModel: AppViewModel = viewModel(
                 factory = AppViewModel.factory(
@@ -91,7 +88,6 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // Define bottom navigation items (using the same icons as your quick access)
     val bottomNavItems = listOf(
         BottomNavItem(
             route = AppDestinations.HOME_ROUTE,
@@ -120,7 +116,6 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
         )
     )
 
-    // Define which screens should show bottom navigation
     val shouldShowBottomNav = currentDestination?.route in bottomNavItems.map { it.route }
 
     NutriScalpTheme(appViewModel = appViewModel) {
@@ -137,44 +132,38 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
         ) { paddingValues ->
             NavHost(
                 navController = navController,
-                startDestination = AppDestinations.SPLASH_ROUTE, // Start with initial Splash
+                startDestination = AppDestinations.SPLASH_ROUTE,
                 modifier = Modifier.padding(paddingValues)
             ) {
-                // INITIAL SPLASH SCREEN (App launch) -> LOGIN
                 composable(AppDestinations.SPLASH_ROUTE) {
                     SplashScreen(onNavigateToHome = {
-                        // After initial splash, go to Login
                         navController.popBackStack()
                         navController.navigate(AppDestinations.LOGIN_ROUTE)
                     })
                 }
 
-                // LOGIN SCREEN -> POST-LOGIN SPLASH -> HOME
                 composable(AppDestinations.LOGIN_ROUTE) {
                     LoginScreen(
                         appViewModel = appViewModel,
                         onLoginSuccess = {
-                            // After successful login, navigate to Post-Login Splash
+
                             navController.navigate(AppDestinations.POST_LOGIN_SPLASH_ROUTE)
                         }
                     )
                 }
 
-                // POST-LOGIN SPLASH SCREEN -> HOME
                 composable(AppDestinations.POST_LOGIN_SPLASH_ROUTE) {
                     SplashScreen(onNavigateToHome = {
-                        // After post-login splash, go to Home and clear back stack
                         navController.popBackStack(AppDestinations.LOGIN_ROUTE, inclusive = true)
                         navController.navigate(AppDestinations.HOME_ROUTE)
                     })
                 }
 
-                // HOME SCREEN (Main Content)
                 composable(AppDestinations.HOME_ROUTE) {
                     HomeScreen(
                         appViewModel = appViewModel,
                         onNavigate = { route ->
-                            // Handle navigation to non-bottom-nav screens
+
                             if (route == AppDestinations.SETTINGS_ROUTE) {
                                 navController.navigate(route)
                             }
@@ -182,19 +171,18 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
                     )
                 }
 
-                // FOODS SCREEN
+
                 composable(AppDestinations.FOODS_ROUTE) {
                     FoodsScreen(
                         appViewModel = appViewModel,
                         onBack = { navController.popBackStack() },
-                        // 💡 NEW NAVIGATION for Food Detail
+
                         onNavigateToDetail = { foodId ->
                             navController.navigate("${AppDestinations.FOOD_DETAIL_BASE_ROUTE}/$foodId")
                         }
                     )
                 }
 
-                // FOOD DETAIL SCREEN 💡 NEW ROUTE WITH ARGUMENT
                 composable(
                     route = AppDestinations.FOOD_DETAIL_ROUTE,
                     arguments = listOf(navArgument("foodId") { type = NavType.IntType })
@@ -207,27 +195,22 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
                     )
                 }
 
-                // DIET LOG SCREEN (New Feature)
                 composable(AppDestinations.DIET_LOG_ROUTE) {
                     DietLogScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
                 }
 
-                // MEAL HISTORY SCREEN 💡 NEW ROUTE
                 composable(AppDestinations.MEAL_HISTORY_ROUTE) {
                     MealHistoryScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
                 }
 
-                // TIPS SCREEN (Animation)
                 composable(AppDestinations.TIPS_ROUTE) {
                     TipsScreen(appViewModel = appViewModel, onBack = { navController.popBackStack() })
                 }
 
-                // SETTINGS SCREEN (DataStore)
                 composable(AppDestinations.SETTINGS_ROUTE) {
                     SettingsScreen(
                         appViewModel = appViewModel,
                         onBack = { navController.popBackStack() },
-                        // 💡 NEW LOGOUT LOGIC: Clear back stack and navigate to LOGIN
                         onLogout = {
                             navController.popBackStack(route = AppDestinations.HOME_ROUTE, inclusive = true)
                             navController.navigate(AppDestinations.LOGIN_ROUTE)
@@ -239,7 +222,7 @@ fun NutriScalpApp(appViewModel: AppViewModel) {
     }
 }
 
-// 🚨 NEW MOCK IMPLEMENTATIONS FOR PREVIEW FACTORY
+
 private val MockMealDao = object : MealDao {
     override suspend fun insertMeal(meal: MealEntity) { /* No-op for preview */ }
     // Return an empty flow for preview
@@ -265,7 +248,6 @@ private val MockUserDao = object : UserDao {
 private val MockMealRepository = MealRepository(MockMealDao)
 private val MockUserRepository = UserRepository(MockUserDao)
 
-// Mock Factory for Preview (Cleaned and stable)
 private val MockAppViewModelFactory = object : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AppViewModel::class.java)) {

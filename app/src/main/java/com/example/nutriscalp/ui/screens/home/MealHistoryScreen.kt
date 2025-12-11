@@ -28,7 +28,6 @@ import java.util.Locale
 @Composable
 fun MealHistoryScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
 
-    // 💡 Collect all meals from the Room database
     val meals by appViewModel.meals.collectAsState(initial = emptyList())
 
     val dateFormatter = remember { SimpleDateFormat("MMM dd, yyyy @ HH:mm", Locale.getDefault()) }

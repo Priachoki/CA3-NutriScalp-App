@@ -21,26 +21,21 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onNavigateToHome: () -> Unit) {
-    // Animation: Use Animatable for a simple fade-in effect
     val alpha = remember {
         Animatable(0f)
     }
 
-    // Animation and Navigation logic
     LaunchedEffect(key1 = true) {
-        // Animation: Fade in the logo over 1.5 seconds
         alpha.animateTo(1f, animationSpec = tween(1500))
 
-        // Wait for an additional 1.5 seconds after the animation finishes
         delay(1500L)
 
-        // Navigation: Navigate to the login screen
         onNavigateToHome()
     }
 
     Box(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background) // 💡 FIXED
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
@@ -49,7 +44,7 @@ fun SplashScreen(onNavigateToHome: () -> Unit) {
             contentDescription = "NutriScalp Logo",
             modifier = Modifier
                 .size(250.dp)
-                .alpha(alpha.value) // Apply the fade-in animation value
+                .alpha(alpha.value)
         )
     }
 }

@@ -22,7 +22,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.example.nutriscalp.ui.theme.AccentPrimary
 
-// Data class for bottom navigation items
+
 data class BottomNavItem(
     val route: String,
     val icon: ImageVector,
@@ -61,13 +61,10 @@ fun RowScope.AddItem(
         selected = selected,
         onClick = {
             navController.navigate(screen.route) {
-                // Pop up to the start destination to avoid building up a large stack
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }
-                // Avoid multiple copies of the same destination
                 launchSingleTop = true
-                // Restore state when reselecting
                 restoreState = true
             }
         },

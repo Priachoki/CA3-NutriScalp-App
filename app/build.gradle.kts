@@ -68,24 +68,21 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
-    // DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    // Retrofit
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.gson)
 
     implementation(libs.androidx.compose.ui.icons.extended)
     implementation(libs.androidx.foundation)
 
-    //  ROOM — Correct dependencies
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.foundation)
-    ksp(libs.room.compiler)   // <-- Works now because plugin is applied
+    ksp(libs.room.compiler)
 
-    //  NO ROOM COMMON, NO OTHER COMPILERS, NO DUPLICATES
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

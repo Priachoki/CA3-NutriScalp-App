@@ -56,7 +56,6 @@ fun DietLogScreen(appViewModel: AppViewModel, onBack: () -> Unit) { // 💡 MODI
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Meal Name Input
             OutlinedTextField(
                 value = mealName,
                 onValueChange = { mealName = it },
@@ -69,7 +68,6 @@ fun DietLogScreen(appViewModel: AppViewModel, onBack: () -> Unit) { // 💡 MODI
                 )
             )
 
-            // Calories Input
             OutlinedTextField(
                 value = calories,
                 onValueChange = { calories = it.filter { it.isDigit() } }, // Only allow digits
@@ -85,7 +83,6 @@ fun DietLogScreen(appViewModel: AppViewModel, onBack: () -> Unit) { // 💡 MODI
                 )
             )
 
-            // Notes Area
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
@@ -99,16 +96,13 @@ fun DietLogScreen(appViewModel: AppViewModel, onBack: () -> Unit) { // 💡 MODI
                 )
             )
 
-            // Save Button
             Button(
-                // 💡 NEW LOGIC: Check inputs before saving
                 onClick = {
                     val calCount = calories.toIntOrNull()
                     if (mealName.isNotBlank() && calCount != null && calCount > 0) {
                         appViewModel.saveMeal(mealName, calCount, notes)
                         onBack()
                     }
-                    // In a real app, you would show a snackbar for validation errors
                 },
                 enabled = mealName.isNotBlank() && calories.toIntOrNull() != null,
                 modifier = Modifier.fillMaxWidth(0.6f).height(56.dp),

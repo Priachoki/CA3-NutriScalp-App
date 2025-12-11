@@ -7,24 +7,23 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 
-// --- Retrofit Interface (Mocked) ---
+
 interface MockFoodApi {
     @GET("foods")
     suspend fun fetchFoods(): List<Food>
 }
 
-// --- Mocked Implementation of the Retrofit Service (Getting Data from Internet) ---
+
 class FoodService private constructor() {
 
     private val mockApi = object : MockFoodApi {
         override suspend fun fetchFoods(): List<Food> {
-            // Simulate network delay
+
             delay(1000)
             return mockFoodList
         }
     }
 
-    // Mock Data
     private val mockFoodList = listOf(
         Food(1, "Spinach", R.drawable.spinach, "Rich in iron, folate, and hydration-supporting nutrients.", "Improves circulation and moisture balance.", category = "Dryness,Oiliness", nutrients = "Iron, Folate, Vitamin A, Vitamin C, Magnesium", howToEat = "Lightly cook, steam, or blend into smoothies.", bestPairings = "Avocado, Olive Oil, Eggs"),
         Food(2, "Salmon", R.drawable.salmon, "High in Omega-3 fatty acids.", "Deeply hydrates scalp and reduces inflammation.", category = "Dryness,Inflammation", nutrients = "Omega-3 fats, Protein, Vitamin D, Selenium", howToEat = "Best grilled, baked, or steamed.", bestPairings = "Broccoli, Lemon, Sweet Potatoes"),

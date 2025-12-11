@@ -36,11 +36,10 @@ import kotlinx.coroutines.delay
 import coil.compose.AsyncImage
 
 
-// Data structure for tips with detailed content
 data class ScalpTip(
     val title: String,
     val subtitle: String,
-    val detailedContent: String, // NEW: Full detailed explanation
+    val detailedContent: String,
     val imageUrl: String,
     val delayMs: Long,
     val conditionTag: String,
@@ -48,9 +47,7 @@ data class ScalpTip(
     val color: Long = 0xFF6200EE
 )
 
-// Comprehensive list of tips with detailed content
 private val allTips = listOf(
-    // ---------------- OILINESS ----------------
     ScalpTip(
         "Reduce Washing Frequency",
         "Over-washing forces scalp to produce even more oil. Wash every 2–3 days.",
@@ -82,7 +79,6 @@ private val allTips = listOf(
         color = 0xFF4CAF50
     ),
 
-    // ---------------- DRYNESS ----------------
     ScalpTip(
         "Hydration is Key",
         "Drink enough water to support scalp moisture.",
@@ -153,19 +149,16 @@ fun TipsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
     val scalpScore by appViewModel.scalpScore.collectAsState()
     var selectedFilter by remember { mutableStateOf("All") }
 
-    // Filtering Logic based on ScalpScore state and selected filter
     val filteredTips = remember(scalpScore, selectedFilter) {
         when (selectedFilter) {
 
             "All" -> {
-                // Show ALL 9 tips always
                 allTips.mapIndexed { index, tip ->
                     tip.copy(delayMs = (index + 1) * 200L)
                 }
             }
 
             else -> {
-                // Filter by selected condition (Oiliness, Dryness, Inflammation)
                 allTips
                     .filter { it.conditionTag == selectedFilter }
                     .mapIndexed { index, tip ->
@@ -205,7 +198,6 @@ fun TipsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Header with user's current scalp status
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,7 +235,6 @@ fun TipsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 }
             }
 
-            // Filter Chips
             Text(
                 "Filter by Condition:",
                 style = MaterialTheme.typography.titleSmall,
@@ -268,7 +259,6 @@ fun TipsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 }
             }
 
-            // Tips Count
             Text(
                 "${filteredTips.size} tips found",
                 style = MaterialTheme.typography.bodySmall,
@@ -276,7 +266,6 @@ fun TipsScreen(appViewModel: AppViewModel, onBack: () -> Unit) {
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
 
-            // Tips List
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -312,15 +301,13 @@ fun FilterChip(
 @Composable
 fun AnimatedTipCard(tip: ScalpTip, index: Int) {
     var visible by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) } // NEW: Track expanded state
+    var expanded by remember { mutableStateOf(false) }
 
-    // Staggered Animation Effect
     LaunchedEffect(key1 = tip.title) {
         delay(tip.delayMs)
         visible = true
     }
 
-    // AnimatedVisibility with scale and fade
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(animationSpec = tween(durationMillis = 600)) +
@@ -329,7 +316,7 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize(), // NEW: Animates size changes smoothly
+                .animateContentSize(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(4.dp)
@@ -343,7 +330,6 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Image on left
                     Box(
                         modifier = Modifier
                             .size(120.dp)
@@ -364,11 +350,9 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
 
                     Spacer(Modifier.width(16.dp))
 
-                    // Content on right
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
-                        // Condition Tag
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -391,7 +375,6 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
 
                         Spacer(Modifier.height(8.dp))
 
-                        // Title
                         Text(
                             tip.title,
                             style = MaterialTheme.typography.titleMedium,
@@ -403,7 +386,6 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
 
                         Spacer(Modifier.height(8.dp))
 
-                        // Subtitle (always visible)
                         Text(
                             tip.subtitle,
                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -416,7 +398,6 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
                     }
                 }
 
-                // Expanded detailed content
                 if (expanded) {
                     Spacer(Modifier.height(16.dp))
                     HorizontalDivider()
@@ -432,7 +413,6 @@ fun AnimatedTipCard(tip: ScalpTip, index: Int) {
                     Spacer(Modifier.height(12.dp))
                 }
 
-                // Learn More / Collapse Button
                 TextButton(
                     onClick = { expanded = !expanded },
                     modifier = Modifier.fillMaxWidth(),

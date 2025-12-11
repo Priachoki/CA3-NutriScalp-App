@@ -79,7 +79,6 @@ fun FoodDetailScreen(appViewModel: AppViewModel, foodId: Int?, onBack: () -> Uni
 
                 Spacer(Modifier.height(16.dp))
 
-                // CATEGORY TAG
                 AssistChip(
                     onClick = {},
                     label = { Text(food.category) },
@@ -91,7 +90,6 @@ fun FoodDetailScreen(appViewModel: AppViewModel, foodId: Int?, onBack: () -> Uni
 
                 Spacer(Modifier.height(22.dp))
 
-                // Scalp Benefit Card
                 DetailCard(title = "Scalp Benefit", text = food.scalpBenefit)
 
                 Spacer(Modifier.height(20.dp))

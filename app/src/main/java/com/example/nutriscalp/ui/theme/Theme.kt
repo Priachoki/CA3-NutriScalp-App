@@ -34,10 +34,10 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun NutriScalpTheme(
-    appViewModel: AppViewModel, // 💡 NEW: Accept ViewModel
+    appViewModel: AppViewModel,
     content: @Composable () -> Unit
 ) {
-    // 💡 NEW: Collect the Dark Mode state from the ViewModel
+
     val isDarkMode by appViewModel.isDarkMode.collectAsState()
 
     val colorScheme = if (isDarkMode) {

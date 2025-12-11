@@ -16,11 +16,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.SharingStarted // 💡 NEW IMPORT
-import kotlinx.coroutines.flow.stateIn // 💡 NEW IMPORT
-import java.util.Calendar // 💡 FIXED: Use Calendar for API 24 compatibility
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import java.util.Calendar
 
-// Data class to hold the static UI state
 data class ScalpScore(
     val dryness: String = "30%",
     val oiliness: String = "60%",
@@ -34,7 +33,6 @@ class AppViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    // Architecture Components: State Flow (Static default)
     private val _scalpScore = MutableStateFlow(ScalpScore())
     val scalpScore: StateFlow<ScalpScore> = _scalpScore.asStateFlow()
 
@@ -51,9 +49,7 @@ class AppViewModel(
     private val _isUserLoggedIn = MutableStateFlow(false)
     val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn.asStateFlow()
 
-    // Helper function to check if a timestamp falls on today's date (API 24 safe)
     private fun isToday(timestamp: Long): Boolean {
-        // Get the start of today's date in milliseconds
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
@@ -61,23 +57,20 @@ class AppViewModel(
         calendar.set(Calendar.MILLISECOND, 0)
         val startOfToday = calendar.timeInMillis
 
-        // Get the start of tomorrow's date
         calendar.add(Calendar.DAY_OF_YEAR, 1)
         val startOfTomorrow = calendar.timeInMillis
 
-        // Check if the timestamp is between the start of today and the start of tomorrow
         return timestamp >= startOfToday && timestamp < startOfTomorrow
     }
 
-    // 💡 FIXED: Use stateIn to convert Flow to StateFlow with an initial value, and use isToday()
     val todayCalories: StateFlow<Int> = meals.map { mealsList ->
         mealsList.filter { meal ->
             isToday(meal.timestamp)
         }.sumOf { it.calories }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000), // Keep the flow active while UI is visible
-        initialValue = 0 // Initial value
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
     )
 
 
@@ -89,14 +82,12 @@ class AppViewModel(
         seedDatabase()
     }
 
-    // 💡 Function to get a single Food object by ID
     fun getFoodById(foodId: Int): Food? {
         return _foods.value.find { it.id == foodId }
     }
 
     fun logout(onLogoutSuccess: () -> Unit) {
         viewModelScope.launch {
-            // In a real app, you would clear user tokens/DataStore prefs here.
             _isUserLoggedIn.value = false
             onLogoutSuccess()
             Log.i("NutriScalpApp", "User logged out.")
@@ -106,7 +97,6 @@ class AppViewModel(
     private fun seedDatabase() {
         viewModelScope.launch {
 
-            // ALL demo users share this hashed password ("password")
             val HASH = "password_hash_1234"
 
             val demoUsers = listOf(
@@ -200,7 +190,6 @@ class AppViewModel(
         )
         Log.d("NutriScalpApp", "Loaded scalp profile for ${user.email}")
     }
-    // Getting Data from Internet (mocked)
     private fun fetchFoods() {
         viewModelScope.launch {
             try {
@@ -214,7 +203,6 @@ class AppViewModel(
         }
     }
 
-    // Use DataStore
     private fun loadPreferences() {
         viewModelScope.launch {
             _isDarkMode.value = dataStoreManager.isDarkMode.first()
@@ -229,7 +217,6 @@ class AppViewModel(
         }
     }
 
-    // MODIFIED: Meal save is now exposed to the UI
     fun saveMeal(mealName: String, calories: Int, notes: String) {
         viewModelScope.launch {
             val meal = MealEntity(
@@ -241,7 +228,6 @@ class AppViewModel(
         }
     }
 
-    // Use DataStore
     fun toggleDarkMode(enable: Boolean) {
         viewModelScope.launch {
             dataStoreManager.setDarkMode(enable)
@@ -249,7 +235,6 @@ class AppViewModel(
         }
     }
 
-    // Custom ViewModel Factory
     companion object {
         fun factory(
             foodService: FoodService,

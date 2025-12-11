@@ -35,7 +35,6 @@ import com.example.nutriscalp.ui.theme.AccentSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
-    // Collect state using the correctly imported ScalpScore type
     val scalpScore by appViewModel.scalpScore.collectAsState(initial = ScalpScore())
     val todayCalories by appViewModel.todayCalories.collectAsState(initial = 0)
 
@@ -48,46 +47,44 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Logo + User greeting on the left
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(start = 4.dp)
                         ) {
-                            // BIGGER logo (increased from 32dp to 48dp)
                             Image(
                                 painter = painterResource(id = R.drawable.nutriscalp_logo),
                                 contentDescription = "App Logo",
                                 modifier = Modifier
-                                    .size(48.dp)  // Increased size
-                                    .padding(end = 12.dp)  // Increased padding
+                                    .size(48.dp)
+                                    .padding(end = 12.dp)
                             )
                             Column {
                                 Text(
                                     "Hello, Vanessa",
-                                    fontSize = 18.sp,  // Slightly bigger text
+                                    fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Text(
                                     "Welcome back!",
-                                    fontSize = 14.sp,  // Slightly bigger text
+                                    fontSize = 14.sp,
                                     color = MaterialTheme.colorScheme.outline
                                 )
                             }
                         }
 
-                        // Settings icon on the right (also made slightly bigger)
+
                         IconButton(
                             onClick = { onNavigate(AppDestinations.SETTINGS_ROUTE) },
                             modifier = Modifier
-                                .size(52.dp)  // Increased size
+                                .size(52.dp)
                                 .padding(end = 4.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = "Settings",
                                 tint = AccentPrimary,
-                                modifier = Modifier.size(32.dp)  // Increased size
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                     }
@@ -111,10 +108,10 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 20.dp)
                 .fillMaxSize()
-        ) {
+        )
+        {
             Spacer(modifier = Modifier.height(10.dp))
 
-            // ===== SCORE CARD (DASHBOARD) =====
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,12 +129,10 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 1. SCALP METRICS DISPLAY
                     ScalpMetricsDisplay(scalpScore = scalpScore)
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // 2. DAILY CALORIE STAT
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Fastfood, contentDescription = "Calories", tint = AccentSecondary)
                         Spacer(modifier = Modifier.width(8.dp))
@@ -154,7 +149,6 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                         )
                     }
 
-                    // 3. REAL CHART - 7-Day Calorie Trend
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         "7-Day Calorie Trend",
@@ -164,66 +158,64 @@ fun HomeScreen(appViewModel: AppViewModel, onNavigate: (String) -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Real chart visualization using Row layout
                     WeekCalorieChart()
                 }
             }
 
-            // ===== WEEKLY SUMMARY CARD =====
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    Text(
-                        "Weekly Nutrition Summary",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AccentPrimary,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Stats row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        StatItem("Avg Daily", "1,850", "kcal")
-                        StatItem("Highest Day", "2,340", "kcal")
-                        StatItem("Total Week", "12,950", "kcal")
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Progress indicators
-                    Text(
-                        "Daily Goal Progress",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Protein progress
-                    ProgressRow("Protein", 65, AccentPrimary)
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Carbs progress
-                    ProgressRow("Carbs", 85, AccentSecondary)
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Fat progress
-                    ProgressRow("Fat", 45, MaterialTheme.colorScheme.error)
-                }
-            }
+//            Card(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 10.dp),
+//                shape = RoundedCornerShape(24.dp),
+//                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+//                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+//            )
+//            {
+//                Column(modifier = Modifier.padding(24.dp)) {
+//                    Text(
+//                        "Weekly Nutrition Summary",
+//                        fontSize = 20.sp,
+//                        fontWeight = FontWeight.Bold,
+//                        color = AccentPrimary,
+//                    )
+//                    Spacer(modifier = Modifier.height(16.dp))
+//
+//                    // Stats row
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        StatItem("Avg Daily", "1,850", "kcal")
+//                        StatItem("Highest Day", "2,340", "kcal")
+//                        StatItem("Total Week", "12,950", "kcal")
+//                    }
+//
+//                    Spacer(modifier = Modifier.height(16.dp))
+//
+//                    // Progress indicators
+//                    Text(
+//                        "Daily Goal Progress",
+//                        style = MaterialTheme.typography.titleSmall,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant
+//                    )
+//                    Spacer(modifier = Modifier.height(8.dp))
+//
+//                    // Protein progress
+//                    ProgressRow("Protein", 65, AccentPrimary)
+//                    Spacer(modifier = Modifier.height(4.dp))
+//
+//                    // Carbs progress
+//                    ProgressRow("Carbs", 85, AccentSecondary)
+//                    Spacer(modifier = Modifier.height(4.dp))
+//
+//                    // Fat progress
+//                    ProgressRow("Fat", 45, MaterialTheme.colorScheme.error)
+//                }
+//            }
         }
     }
 }
 
-// Helper Composable for the prominent Scalp Metrics
 @Composable
 fun ScalpMetricsDisplay(scalpScore: ScalpScore) {
     Row(
@@ -257,7 +249,6 @@ fun MetricItem(label: String, value: String, valueColor: Color, modifier: Modifi
     }
 }
 
-// Real chart implementation using Row layout instead of Canvas text
 @Composable
 fun WeekCalorieChart() {
     // Sample data for last 7 days
@@ -282,12 +273,10 @@ fun WeekCalorieChart() {
             .background(AccentSecondary.copy(alpha = 0.05f))
             .padding(vertical = 16.dp, horizontal = 8.dp)
     ) {
-        // Y-axis labels on the left
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Bottom
         ) {
-            // Y-axis labels
             Column(
                 modifier = Modifier
                     .width(30.dp)
@@ -301,18 +290,15 @@ fun WeekCalorieChart() {
                 Text("0", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
-            // Chart area
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .fillMaxHeight()
             ) {
-                // Grid lines
                 Canvas(
                     modifier = Modifier.matchParentSize()
                 ) {
-                    // Draw horizontal grid lines
                     val lineCount = 5
                     for (i in 0 until lineCount) {
                         val y = size.height * (i.toFloat() / (lineCount - 1))
@@ -325,7 +311,6 @@ fun WeekCalorieChart() {
                     }
                 }
 
-                // Bars
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -339,7 +324,6 @@ fun WeekCalorieChart() {
                             verticalArrangement = Arrangement.Bottom,
                             modifier = Modifier.width(28.dp)
                         ) {
-                            // Calorie value above bar
                             Text(
                                 text = calories.toString(),
                                 fontSize = 10.sp,
